@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Activity, LogOut, Wifi, WifiOff } from 'lucide-react';
+import { Activity, Download, LogOut, Wifi, WifiOff } from 'lucide-react';
 import { useAuth } from '../lib/authContext';
 import { networkService } from '../platform';
 
@@ -8,12 +8,41 @@ export const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isOnline, setIsOnline] = useState(true);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
     networkService.isOnline().then(setIsOnline);
     const cleanup = networkService.onStatusChange(setIsOnline);
-    return cleanup;
+
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    const handleAppInstalled = () => {
+      setDeferredPrompt(null);
+      setIsInstalled(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      cleanup();
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
   }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+    }
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -31,7 +60,19 @@ export const Navbar: React.FC = () => {
           </span>
         </Link>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
+          {/* PWA Install Button if available */}
+          {deferredPrompt && !isInstalled && (
+            <button
+              onClick={handleInstallClick}
+              className="flex items-center gap-1.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-sky-400/30 shadow-sm transition"
+              title="Install NeuroCare as PWA application"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Install App</span>
+            </button>
+          )}
+
           {/* Online/Offline status indicator */}
           <div className="flex items-center gap-1.5 text-xs">
             {isOnline ? (
