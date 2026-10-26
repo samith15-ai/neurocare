@@ -25,8 +25,8 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24 hours
     
-    # CORS
-    CORS_ORIGINS: List[str] = [
+    # CORS (Typed as Any so pydantic-settings does not crash if an unquoted string like * is passed in ENV)
+    CORS_ORIGINS: Any = [
         "http://localhost:5173",
         "http://localhost:3000",
         "http://127.0.0.1:5173",
@@ -36,7 +36,7 @@ class Settings(BaseSettings):
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
-    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
+    def assemble_cors_origins(cls, v: Any) -> List[str]:
         if isinstance(v, str):
             v_str = v.strip()
             if v_str.startswith("[") and v_str.endswith("]"):
@@ -46,7 +46,7 @@ class Settings(BaseSettings):
                     pass
             return [origin.strip() for origin in v_str.split(",") if origin.strip()]
         elif isinstance(v, list):
-            return v
+            return [str(origin) for origin in v]
         return ["*"]
     
     # Database
