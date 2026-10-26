@@ -1,6 +1,9 @@
 # NeuroCare: Contactless Multimodal System for Personalized Neurological Monitoring
 
 [![Medaithon Track MED-PS-002](https://img.shields.io/badge/Medaithon-MED--PS--002-blue.svg)](https://medaithon.org)
+[![Live Web Application](https://img.shields.io/badge/Live%20Demo-neurocare--inky.vercel.app-success.svg)](https://neurocare-inky.vercel.app)
+[![API Documentation](https://img.shields.io/badge/API%20Docs-neurocare--38kr.onrender.com-blue.svg)](https://neurocare-38kr.onrender.com/docs)
+[![Database: Supabase](https://img.shields.io/badge/Database-Supabase%20PostgreSQL-3ECF8E.svg?logo=supabase&logoColor=white)](https://supabase.com)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![React 19](https://img.shields.io/badge/React-19.3-61DAFB.svg?logo=react&logoColor=black)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0-3178C6.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
@@ -8,6 +11,18 @@
 [![Test Suite: 103 Passed](https://img.shields.io/badge/Tests-103%20Passed%20(100%25)-success.svg)](https://pytest.org)
 
 NeuroCare is an AI-powered, contactless multimodal neurological monitoring platform developed for **Medaithon Track MED-PS-002**. By combining computer vision, acoustic signal processing, and longitudinal statistical intelligence, NeuroCare measures and tracks subtle changes in motor kinematics, vocal acoustics, facial expressivity, gait, balance, and cognitive psychomotor speed — directly from everyday smartphones, tablets, or web browsers without requiring wearable sensors or specialized clinical hardware.
+
+---
+
+## 🌐 Live Production Deployments
+
+- **Live Web & PWA Portal:** **[https://neurocare-inky.vercel.app](https://neurocare-inky.vercel.app)**
+- **Live API & Swagger Docs:** **[https://neurocare-38kr.onrender.com/docs](https://neurocare-38kr.onrender.com/docs)**
+- **Managed Database:** Supabase PostgreSQL 17 (`aws-0-ap-south-1`)
+
+### 👥 Demo Credentials
+- **Doctor Portal:** `doctor@neurocare.org` / `Doctor123!`
+- **Patient Portal:** `patient@neurocare.org` / `Patient123!`
 
 ---
 
