@@ -8,6 +8,10 @@ from app.schemas.report import ReportCreate, ReportOut
 from app.schemas.monitoring import LongitudinalSummary, TrajectoryPoint
 from app.schemas.ai import ExplainabilityQuery, AIExplanationResponse, MetricEvidence
 from app.schemas.audit_log import AuditLogCreate, AuditLogOut
+from app.schemas.invitation import InvitationCreate, InvitationOut, RegisterWithInvite
+from app.schemas.consent import ConsentCreate, ConsentRevoke, ConsentOut
+from app.schemas.monitoring_plan import MonitoringPlanCreate, MonitoringPlanUpdate, MonitoringPlanOut
+from app.schemas.checkin import DailyCheckinCreate, DailyCheckinOut, DailyCheckinStatusOut, SyncBatchRequest, SyncBatchResponse
 
 __all__ = [
     "Token",
@@ -35,5 +39,19 @@ __all__ = [
     "AIExplanationResponse",
     "MetricEvidence",
     "AuditLogCreate",
-    "AuditLogOut"
+    "AuditLogOut",
+    "InvitationCreate",
+    "InvitationOut",
+    "RegisterWithInvite",
+    "ConsentCreate",
+    "ConsentRevoke",
+    "ConsentOut",
+    "MonitoringPlanCreate",
+    "MonitoringPlanUpdate",
+    "MonitoringPlanOut",
+    "DailyCheckinCreate",
+    "DailyCheckinOut",
+    "DailyCheckinStatusOut",
+    "SyncBatchRequest",
+    "SyncBatchResponse",
 ]

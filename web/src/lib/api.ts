@@ -1,4 +1,18 @@
-import type { Patient, Assessment, Feature, Baseline, Report, TrajectoryPoint, User } from '../types';
+import type {
+  Patient,
+  Assessment,
+  Feature,
+  Baseline,
+  BaselineStatus,
+  Report,
+  TrajectoryPoint,
+  User,
+  Invitation,
+  PatientConsent,
+  MonitoringPlan,
+  DailyCheckin,
+  DailyCheckinStatus,
+} from '../types';
 import { storageService, networkService } from '../platform';
 import { offlineDb } from './db';
 
@@ -239,6 +253,172 @@ export const api = {
       body: JSON.stringify({ patient_id: patientId, question, assessment_id: assessmentId }),
     });
     if (!res.ok) throw new Error('AI Assistant request failed');
+    return res.json();
+  },
+
+  // Phase 5: Enrollment & Invitations
+  async createInvitation(data: { patient_id?: string; patient_email?: string; expires_in_days?: number }): Promise<Invitation> {
+    const headers = await getAuthHeader();
+    const res = await fetch(`${API_BASE}/enrollment/invitations`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to create invitation');
+    return res.json();
+  },
+
+  async getInvitation(code: string): Promise<Invitation> {
+    const res = await fetch(`${API_BASE}/enrollment/invitations/${code.toUpperCase()}`);
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Invalid or expired invitation' }));
+      throw new Error(err.detail || 'Invalid or expired invitation');
+    }
+    return res.json();
+  },
+
+  async registerWithInvite(data: any): Promise<any> {
+    const res = await fetch(`${API_BASE}/enrollment/register-with-invite`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Registration failed' }));
+      throw new Error(err.detail || 'Registration failed');
+    }
+    const result = await res.json();
+    if (result.access_token) {
+      await storageService.setItem('auth_token', result.access_token);
+      await storageService.setItem('current_user', {
+        id: result.user_id,
+        email: data.email,
+        full_name: result.full_name,
+        role: result.role,
+        is_active: true,
+      });
+    }
+    return result;
+  },
+
+  // Phase 5: Consent Management
+  async getConsent(patientId: string): Promise<PatientConsent> {
+    const headers = await getAuthHeader();
+    const res = await fetch(`${API_BASE}/enrollment/consent/${patientId}`, { headers });
+    if (!res.ok) throw new Error('Consent record not found');
+    return res.json();
+  },
+
+  async recordConsent(data: {
+    patient_id: string;
+    consent_version: string;
+    consent_features: boolean;
+    consent_evidence_clips: boolean;
+    consent_research: boolean;
+    signature_name: string;
+  }): Promise<PatientConsent> {
+    const headers = await getAuthHeader();
+    const res = await fetch(`${API_BASE}/enrollment/consent`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to record consent');
+    return res.json();
+  },
+
+  async revokeConsent(data: { patient_id: string; scope: string; reason?: string }): Promise<PatientConsent> {
+    const headers = await getAuthHeader();
+    const res = await fetch(`${API_BASE}/enrollment/consent/revoke`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to revoke consent');
+    return res.json();
+  },
+
+  async deletePatientEvidence(patientId: string): Promise<{ status: string; purged_records: number; message: string }> {
+    const headers = await getAuthHeader();
+    const res = await fetch(`${API_BASE}/enrollment/evidence/${patientId}`, {
+      method: 'DELETE',
+      headers,
+    });
+    if (!res.ok) throw new Error('Failed to delete evidence');
+    return res.json();
+  },
+
+  // Phase 5: Monitoring Plans
+  async getMonitoringPlan(patientId: string): Promise<MonitoringPlan | null> {
+    const headers = await getAuthHeader();
+    const res = await fetch(`${API_BASE}/monitoring-plans/patient/${patientId}`, { headers });
+    if (!res.ok) return null;
+    return res.json();
+  },
+
+  async saveMonitoringPlan(data: {
+    patient_id: string;
+    assessment_types: string[] | string;
+    frequency: string;
+    start_date: string;
+    duration_days: number;
+    reminder_time: string;
+    reminder_enabled: boolean;
+  }): Promise<MonitoringPlan> {
+    const headers = await getAuthHeader();
+    const res = await fetch(`${API_BASE}/monitoring-plans`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to save monitoring plan');
+    return res.json();
+  },
+
+  // Phase 5: Daily Check-in & Baseline Status
+  async getTodayCheckinStatus(patientId: string): Promise<DailyCheckinStatus> {
+    const headers = await getAuthHeader();
+    const res = await fetch(`${API_BASE}/checkins/today/${patientId}`, { headers });
+    if (!res.ok) throw new Error('Failed to fetch check-in status');
+    return res.json();
+  },
+
+  async submitDailyCheckin(data: {
+    patient_id: string;
+    assessment_id?: string;
+    checkin_date: string;
+    idempotency_key: string;
+    medication_taken: boolean;
+    medication_notes?: string;
+    sleep_quality?: number;
+    fatigue_level?: number;
+    pain_level?: number;
+    stress_level?: number;
+  }): Promise<DailyCheckin> {
+    const headers = await getAuthHeader();
+    const res = await fetch(`${API_BASE}/checkins`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to submit daily check-in');
+    return res.json();
+  },
+
+  async getBaselineStatus(patientId: string): Promise<BaselineStatus> {
+    const headers = await getAuthHeader();
+    const res = await fetch(`${API_BASE}/baselines/${patientId}/status`, { headers });
+    if (!res.ok) throw new Error('Failed to fetch baseline status');
+    return res.json();
+  },
+
+  async computeBaselines(patientId: string, force = false): Promise<any> {
+    const headers = await getAuthHeader();
+    const res = await fetch(`${API_BASE}/baselines/${patientId}/compute?force_recompute=${force}`, {
+      method: 'POST',
+      headers,
+    });
+    if (!res.ok) throw new Error('Failed to compute baseline');
     return res.json();
   },
 };

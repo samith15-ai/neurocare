@@ -58,8 +58,100 @@ export interface Baseline {
   feature_name: string;
   mean_value: number;
   std_value: number;
+  median_value?: number;
+  mad_value?: number;
   sample_count: number;
+  is_established?: boolean;
+  is_frozen?: boolean;
+  status_message?: string;
   updated_at: string;
+}
+
+export interface BaselineStatus {
+  patient_id: string;
+  is_established: boolean;
+  is_frozen: boolean;
+  sample_count: number;
+  required_sessions: number;
+  status_message: string;
+  baselines: Array<{
+    domain: string;
+    feature_name: string;
+    median_value: number;
+    mad_value?: number;
+    std_value: number;
+    sample_count: number;
+    is_frozen: boolean;
+  }>;
+}
+
+export interface Invitation {
+  id: string;
+  code: string;
+  doctor_id: string;
+  patient_id?: string;
+  patient_email?: string;
+  status: 'pending' | 'accepted' | 'expired' | 'revoked';
+  expires_at: string;
+  created_at: string;
+  invite_url?: string;
+}
+
+export interface PatientConsent {
+  id: string;
+  patient_id: string;
+  consent_version: string;
+  consent_features: boolean;
+  consent_evidence_clips: boolean;
+  consent_research: boolean;
+  is_revoked: boolean;
+  revoked_at?: string;
+  revoked_scope?: string;
+  signature_name: string;
+  signed_at: string;
+  updated_at: string;
+}
+
+export interface MonitoringPlan {
+  id: string;
+  patient_id: string;
+  clinician_id: string;
+  assessment_types: string;
+  frequency: string;
+  start_date: string;
+  duration_days: number;
+  reminder_time: string;
+  reminder_enabled: boolean;
+  reminder_channel: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DailyCheckin {
+  id?: string;
+  patient_id: string;
+  assessment_id?: string;
+  checkin_date: string;
+  idempotency_key: string;
+  medication_taken: boolean;
+  medication_notes?: string;
+  sleep_quality?: number;
+  fatigue_level?: number;
+  pain_level?: number;
+  stress_level?: number;
+  is_synced: boolean;
+  created_at?: string;
+}
+
+export interface DailyCheckinStatus {
+  patient_id: string;
+  is_completed_today: boolean;
+  today_checkin?: DailyCheckin | null;
+  current_streak: number;
+  total_completed: number;
+  reminder_time?: string;
+  message: string;
 }
 
 export interface Finding {

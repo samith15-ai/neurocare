@@ -7,6 +7,10 @@ from app.models.baseline import Baseline
 from app.models.finding import Finding
 from app.models.report import Report
 from app.models.audit_log import AuditLog
+from app.models.invitation import Invitation
+from app.models.consent import PatientConsent
+from app.models.monitoring_plan import MonitoringPlan
+from app.models.checkin import DailyCheckin
 
 __all__ = [
     "Base",
@@ -17,5 +21,9 @@ __all__ = [
     "Baseline",
     "Finding",
     "Report",
-    "AuditLog"
+    "AuditLog",
+    "Invitation",
+    "PatientConsent",
+    "MonitoringPlan",
+    "DailyCheckin"
 ]

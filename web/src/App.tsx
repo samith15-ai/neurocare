@@ -5,6 +5,7 @@ import { Navbar } from './components/Navbar';
 import { LoginPage } from './modules/auth/LoginPage';
 import { DoctorDashboard } from './modules/doctor/DoctorDashboard';
 import { PatientDashboard } from './modules/patient/PatientDashboard';
+import { PatientEnrollmentPage } from './modules/enrollment/PatientEnrollmentPage';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRole?: 'doctor' | 'patient' }> = ({
   children,
@@ -48,6 +49,19 @@ export function App() {
           <main className="flex-1">
             <Routes>
               <Route path="/login" element={<LoginPage />} />
+              <Route
+                path="/enroll"
+                element={
+                  <PatientEnrollmentPage
+                    onSuccess={() => {
+                      window.location.href = '/patient';
+                    }}
+                    onCancel={() => {
+                      window.location.href = '/login';
+                    }}
+                  />
+                }
+              />
               <Route
                 path="/doctor"
                 element={

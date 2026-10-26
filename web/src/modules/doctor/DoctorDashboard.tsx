@@ -11,7 +11,9 @@ import { CognitiveAssessment } from '../assessments/CognitiveAssessment';
 import { LongitudinalChart } from '../monitoring/LongitudinalChart';
 import { ReportView } from '../reports/ReportView';
 import { AIAssistant } from '../ai/AIAssistant';
-import type { Patient, Report, TrajectoryPoint, Feature } from '../../types';
+import { DoctorEnrollmentModal } from '../enrollment/DoctorEnrollmentModal';
+import { MonitoringPlanModal } from '../monitoring/MonitoringPlanModal';
+import type { Patient, Report, TrajectoryPoint, Feature, BaselineStatus } from '../../types';
 
 export const DoctorDashboard: React.FC = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -22,6 +24,9 @@ export const DoctorDashboard: React.FC = () => {
 
   // Modals & Panels
   const [showEnrollModal, setShowEnrollModal] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showPlanModal, setShowPlanModal] = useState(false);
+  const [baselineStatus, setBaselineStatus] = useState<BaselineStatus | null>(null);
   const [showAssessmentModal, setShowAssessmentModal] = useState(false);
   const [assessmentType, setAssessmentType] = useState<
     'multimodal_standard' | 'motor' | 'vocal' | 'facial' | 'gait' | 'balance' | 'cognition'
@@ -66,7 +71,25 @@ export const DoctorDashboard: React.FC = () => {
     } catch {
       setActiveReport(null);
     }
+
+    try {
+      const bStat = await api.getBaselineStatus(p.id);
+      setBaselineStatus(bStat);
+    } catch {
+      setBaselineStatus(null);
+    }
   }
+
+  const handleRecomputeBaseline = async () => {
+    if (!selectedPatient) return;
+    try {
+      await api.computeBaselines(selectedPatient.id, true);
+      const bStat = await api.getBaselineStatus(selectedPatient.id);
+      setBaselineStatus(bStat);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleEnrollPatient = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -242,6 +265,60 @@ export const DoctorDashboard: React.FC = () => {
                     </p>
                   )}
                 </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={() => setShowInviteModal(true)}
+                    className="px-3 py-2 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5"
+                  >
+                    <span>🎟️</span>
+                    <span>Patient Invite / QR</span>
+                  </button>
+                  <button
+                    onClick={() => setShowPlanModal(true)}
+                    className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5"
+                  >
+                    <span>📋</span>
+                    <span>Monitoring Plan</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Baseline Engine Status Card */}
+              <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-start space-x-3">
+                  <span className="text-xl p-2 bg-slate-800 rounded-xl">
+                    {baselineStatus?.is_established ? '🔒' : '⏳'}
+                  </span>
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                        Personal Baseline Engine
+                      </h4>
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                          baselineStatus?.is_established
+                            ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-400'
+                            : 'bg-amber-500/15 border-amber-500/40 text-amber-400'
+                        }`}
+                      >
+                        {baselineStatus?.is_established ? 'Established & Frozen' : 'Pending Baseline'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      {baselineStatus?.is_established
+                        ? `Computed via Median + MAD (floor active) across ${baselineStatus.sample_count} valid sessions. Deteriorations are never absorbed.`
+                        : `Personal baseline is not yet established (${baselineStatus?.sample_count || 0}/3 valid sessions required).`}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleRecomputeBaseline}
+                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-xl text-xs font-medium transition whitespace-nowrap"
+                >
+                  Recalculate Baseline
+                </button>
               </div>
 
               {/* Longitudinal Monitoring Chart */}
@@ -494,6 +571,22 @@ export const DoctorDashboard: React.FC = () => {
             )}
           </div>
         </div>
+      )}
+      {/* Doctor Enrollment Modal */}
+      <DoctorEnrollmentModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        patients={patients}
+        selectedPatientId={selectedPatient?.id}
+      />
+
+      {/* Monitoring Plan Modal */}
+      {selectedPatient && (
+        <MonitoringPlanModal
+          isOpen={showPlanModal}
+          onClose={() => setShowPlanModal(false)}
+          patient={selectedPatient}
+        />
       )}
     </div>
   );

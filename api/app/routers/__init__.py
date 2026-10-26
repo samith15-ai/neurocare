@@ -9,6 +9,9 @@ from app.routers.reports import router as reports_router
 from app.routers.monitoring import router as monitoring_router
 from app.routers.ai_services import router as ai_router
 from app.routers.audit_logs import router as audit_router
+from app.routers.enrollment import router as enrollment_router
+from app.routers.monitoring_plans import router as monitoring_plans_router
+from app.routers.checkins import router as checkins_router
 
 __all__ = [
     "health_router",
@@ -21,5 +24,8 @@ __all__ = [
     "reports_router",
     "monitoring_router",
     "ai_router",
-    "audit_router"
+    "audit_router",
+    "enrollment_router",
+    "monitoring_plans_router",
+    "checkins_router"
 ]

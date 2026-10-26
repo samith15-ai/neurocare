@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
@@ -13,7 +14,10 @@ from app.routers import (
     reports_router,
     monitoring_router,
     ai_router,
-    audit_router
+    audit_router,
+    enrollment_router,
+    monitoring_plans_router,
+    checkins_router
 )
 from app.models.user import User
 from app.models.patient import Patient
@@ -22,10 +26,39 @@ from app.models.feature import Feature
 from app.models.baseline import Baseline
 from app.models.finding import Finding
 from app.models.report import Report
+from app.models.consent import PatientConsent
+from app.models.monitoring_plan import MonitoringPlan
 from app.core.security import get_password_hash
+
+from sqlalchemy import text
 
 # Create tables
 Base.metadata.create_all(bind=engine)
+
+def auto_migrate_sqlite():
+    """Ensure newly added columns exist in SQLite database tables without wiping existing data."""
+    try:
+        with engine.connect() as conn:
+            # Check baselines table
+            res = conn.execute(text("PRAGMA table_info(baselines)")).fetchall()
+            col_names = {row[1] for row in res}
+            if "median_value" not in col_names:
+                conn.execute(text("ALTER TABLE baselines ADD COLUMN median_value FLOAT"))
+            if "mad_value" not in col_names:
+                conn.execute(text("ALTER TABLE baselines ADD COLUMN mad_value FLOAT"))
+            if "min_mad_floor" not in col_names:
+                conn.execute(text("ALTER TABLE baselines ADD COLUMN min_mad_floor FLOAT DEFAULT 0.01"))
+            if "is_established" not in col_names:
+                conn.execute(text("ALTER TABLE baselines ADD COLUMN is_established BOOLEAN DEFAULT 0"))
+            if "is_frozen" not in col_names:
+                conn.execute(text("ALTER TABLE baselines ADD COLUMN is_frozen BOOLEAN DEFAULT 0"))
+            if "status_message" not in col_names:
+                conn.execute(text("ALTER TABLE baselines ADD COLUMN status_message VARCHAR(100) DEFAULT 'Personal baseline is not yet established.'"))
+            conn.commit()
+    except Exception as e:
+        print(f"Warning during auto_migrate_sqlite: {e}")
+
+auto_migrate_sqlite()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -54,6 +87,9 @@ app.include_router(reports_router, prefix=settings.API_PREFIX)
 app.include_router(monitoring_router, prefix=settings.API_PREFIX)
 app.include_router(ai_router, prefix=settings.API_PREFIX)
 app.include_router(audit_router, prefix=settings.API_PREFIX)
+app.include_router(enrollment_router, prefix=settings.API_PREFIX)
+app.include_router(monitoring_plans_router, prefix=settings.API_PREFIX)
+app.include_router(checkins_router, prefix=settings.API_PREFIX)
 
 @app.on_event("startup")
 def seed_demo_data_if_empty():
@@ -154,6 +190,31 @@ def seed_demo_data_if_empty():
                 approved_by_user_id=doctor.id
             )
             db.add(report)
+
+            # Seed patient consent and monitoring plan
+            consent = PatientConsent(
+                patient_id=patient.id,
+                consent_version="v1.0",
+                consent_features=True,
+                consent_evidence_clips=False,
+                consent_research=False,
+                signature_name="Arthur Pendelton",
+                is_revoked=False
+            )
+            db.add(consent)
+
+            plan = MonitoringPlan(
+                patient_id=patient.id,
+                clinician_id=doctor.id,
+                assessment_types="finger_tapping,speech",
+                frequency="daily",
+                start_date=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                duration_days=60,
+                reminder_time="09:00",
+                reminder_enabled=True,
+                is_active=True
+            )
+            db.add(plan)
             db.commit()
     finally:
         db.close()

@@ -11,13 +11,25 @@ import { BalanceAssessment } from '../assessments/BalanceAssessment';
 import { CognitiveAssessment } from '../assessments/CognitiveAssessment';
 import { LongitudinalChart } from '../monitoring/LongitudinalChart';
 import { ReportView } from '../reports/ReportView';
-import type { Patient, TrajectoryPoint, Feature, Report } from '../../types';
+import { DailyCheckinModal } from '../monitoring/DailyCheckinModal';
+import { PrivacyConsentModal } from '../enrollment/PrivacyConsentModal';
+import { offlineSyncManager, type SyncStatus } from '../../lib/offlineSync';
+import type { Patient, TrajectoryPoint, Feature, Report, DailyCheckinStatus } from '../../types';
 
 export const PatientDashboard: React.FC = () => {
   const { user } = useAuth();
   const [patient, setPatient] = useState<Patient | null>(null);
   const [trajectoryPoints, setTrajectoryPoints] = useState<TrajectoryPoint[]>([]);
   const [showAssessment, setShowAssessment] = useState(false);
+  const [showDailyCheckin, setShowDailyCheckin] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [checkinStatus, setCheckinStatus] = useState<DailyCheckinStatus | null>(null);
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>({
+    isOnline: true,
+    pendingCount: 0,
+    lastSyncTime: null,
+    isSyncing: false,
+  });
   const [assessmentMode, setAssessmentMode] = useState<
     'finger_tapping' | 'speech' | 'facial' | 'gait' | 'balance' | 'cognition' | 'multimodal'
   >('finger_tapping');
@@ -25,6 +37,10 @@ export const PatientDashboard: React.FC = () => {
   const [assessmentSuccess, setAssessmentSuccess] = useState(false);
 
   useEffect(() => {
+    const unsub = offlineSyncManager.subscribe((status) => {
+      setSyncStatus(status);
+    });
+
     async function initPatient() {
       try {
         const patients = await api.getPatients();
@@ -32,6 +48,8 @@ export const PatientDashboard: React.FC = () => {
         const p = patients.find((pt) => pt.user_id === user?.id) || patients[0];
         if (p) {
           setPatient(p);
+          loadCheckinStatus(p.id);
+
           const longData = await api.getLongitudinal(p.id);
           setTrajectoryPoints(longData.trajectory_points);
 
@@ -45,7 +63,18 @@ export const PatientDashboard: React.FC = () => {
       }
     }
     initPatient();
+
+    return () => unsub();
   }, [user]);
+
+  const loadCheckinStatus = async (patientId: string) => {
+    try {
+      const stat = await api.getTodayCheckinStatus(patientId);
+      setCheckinStatus(stat);
+    } catch {
+      // offline or not found
+    }
+  };
 
   const handleAssessmentComplete = async (
     features: Feature[],
@@ -97,6 +126,41 @@ export const PatientDashboard: React.FC = () => {
         </a>
       </div>
 
+      {/* Top Utilities Bar: Offline Sync Status & Privacy Consent */}
+      <div className="flex items-center justify-between text-xs px-1">
+        <div className="flex items-center space-x-2">
+          <span
+            className={`w-2.5 h-2.5 rounded-full ${
+              syncStatus.isOnline ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
+            }`}
+          />
+          <span className="text-slate-400 text-[11px]">
+            {syncStatus.isOnline
+              ? syncStatus.pendingCount > 0
+                ? `${syncStatus.pendingCount} pending sync`
+                : 'Cloud Synced ✓'
+              : 'Offline Mode (Local Cache)'}
+          </span>
+          {syncStatus.isOnline && syncStatus.pendingCount > 0 && (
+            <button
+              onClick={() => offlineSyncManager.syncPendingQueue()}
+              disabled={syncStatus.isSyncing}
+              className="text-[10px] text-sky-400 hover:text-sky-300 font-bold ml-1 underline"
+            >
+              {syncStatus.isSyncing ? 'Syncing...' : 'Sync Now'}
+            </button>
+          )}
+        </div>
+
+        <button
+          onClick={() => setShowPrivacyModal(true)}
+          className="text-xs text-slate-400 hover:text-slate-200 flex items-center space-x-1 p-1 rounded-lg hover:bg-slate-800 transition"
+        >
+          <span>🛡️</span>
+          <span>Privacy & Consent</span>
+        </button>
+      </div>
+
       {/* Welcome Card */}
       <div className="bg-gradient-to-br from-slate-900 to-sky-950/50 border border-slate-800 rounded-3xl p-5 shadow-2xl flex flex-col gap-2">
         <div className="flex items-center justify-between">
@@ -122,6 +186,54 @@ export const PatientDashboard: React.FC = () => {
           <span>Your contactless check-in was successfully recorded and shared with your clinician.</span>
         </div>
       )}
+
+      {/* Primary Today's Check-in Card */}
+      <div className="bg-gradient-to-r from-emerald-950/40 to-slate-900 border border-emerald-500/30 rounded-3xl p-5 shadow-xl flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <span className="p-2 bg-emerald-500/20 text-emerald-400 rounded-xl text-lg">☀️</span>
+            <div>
+              <h2 className="text-sm font-bold text-slate-100">Today&apos;s Daily Check-In</h2>
+              <div className="text-[11px] text-slate-400 flex items-center space-x-2">
+                <span>Reminder: {checkinStatus?.reminder_time || '09:00 AM'}</span>
+                <span>•</span>
+                <span>Finger Tapping + Speech</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Streak Badge */}
+          <div className="flex items-center space-x-1.5 px-3 py-1 bg-amber-500/15 border border-amber-500/30 rounded-full">
+            <span className="text-sm">🔥</span>
+            <span className="text-xs font-bold text-amber-300">
+              {checkinStatus?.current_streak || 0}d
+            </span>
+          </div>
+        </div>
+
+        {checkinStatus?.is_completed_today ? (
+          <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center justify-between">
+            <div className="flex items-center space-x-2 text-xs text-emerald-300">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <span>Today&apos;s check-in complete! Great job maintaining your streak.</span>
+            </div>
+            <button
+              onClick={() => setShowDailyCheckin(true)}
+              className="text-[11px] font-bold text-slate-400 hover:text-white px-2 py-1 rounded-lg hover:bg-slate-800 transition"
+            >
+              Review
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowDailyCheckin(true)}
+            className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-950/50 flex items-center justify-center space-x-2 text-xs transition active:scale-[0.98]"
+          >
+            <span>Start Today&apos;s Daily Check-in</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        )}
+      </div>
 
       {/* Daily Check-in Action Card */}
       <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-col gap-3">
@@ -335,6 +447,27 @@ export const PatientDashboard: React.FC = () => {
             )}
           </div>
         </div>
+      )}
+      {/* Daily Check-in Modal */}
+      {patient && (
+        <DailyCheckinModal
+          isOpen={showDailyCheckin}
+          onClose={() => setShowDailyCheckin(false)}
+          patient={patient}
+          onCompleted={() => {
+            loadCheckinStatus(patient.id);
+            setAssessmentSuccess(true);
+          }}
+        />
+      )}
+
+      {/* Privacy & Consent Modal */}
+      {patient && (
+        <PrivacyConsentModal
+          isOpen={showPrivacyModal}
+          onClose={() => setShowPrivacyModal(false)}
+          patientId={patient.id}
+        />
       )}
     </div>
   );
