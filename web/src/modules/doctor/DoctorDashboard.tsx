@@ -342,6 +342,7 @@ export const DoctorDashboard: React.FC = () => {
               <AIAssistant
                 patientId={selectedPatient.id}
                 assessmentId={activeReport?.assessment_id}
+                isDoctor={true}
               />
             </>
           ) : (

@@ -29,6 +29,7 @@ from app.models.finding import Finding
 from app.models.report import Report
 from app.models.consent import PatientConsent
 from app.models.monitoring_plan import MonitoringPlan
+from app.models.clinical_summary import ClinicalSummary
 from app.core.security import get_password_hash
 
 from sqlalchemy import text

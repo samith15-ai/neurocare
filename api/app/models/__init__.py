@@ -13,6 +13,7 @@ from app.models.monitoring_plan import MonitoringPlan
 from app.models.checkin import DailyCheckin
 from app.models.treatment_event import TreatmentEvent
 from app.models.patient_timeline import PatientTimelineState
+from app.models.clinical_summary import ClinicalSummary
 
 __all__ = [
     "Base",
@@ -29,5 +30,6 @@ __all__ = [
     "MonitoringPlan",
     "DailyCheckin",
     "TreatmentEvent",
-    "PatientTimelineState"
+    "PatientTimelineState",
+    "ClinicalSummary"
 ]

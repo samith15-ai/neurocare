@@ -332,3 +332,62 @@ export interface LongitudinalIntelligenceReport {
   treatment_correlations: string[];
   evaluated_at: string;
 }
+
+// Phase 7: Grounded AI Assistant & Clinician Summary
+export interface ToolCallResult {
+  tool_name: string;
+  summary: string;
+  data: Record<string, any>;
+}
+
+export interface AIChatRequest {
+  patient_id: string;
+  message: string;
+  conversation_history?: Array<{ role: 'user' | 'assistant'; content: string }>;
+  assessment_id?: string;
+}
+
+export interface AIChatResponse {
+  response: string;
+  role_adapted_mode: 'patient' | 'doctor';
+  tool_calls: ToolCallResult[];
+  observations: string[];
+  interpretations: string[];
+  quality_notes?: string | null;
+  emergency_advisory?: string | null;
+  disclaimer: string;
+}
+
+export interface ClinicianSummaryDraft {
+  patient_id: string;
+  patient_name: string;
+  mrn: string;
+  subjective: string;
+  objective: string;
+  assessment: string;
+  plan: string;
+  is_approved: boolean;
+  disclaimer: string;
+}
+
+export interface ClinicianSummaryApproveRequest {
+  patient_id: string;
+  subjective: string;
+  objective: string;
+  assessment: string;
+  plan: string;
+  explicit_approval: boolean;
+}
+
+export interface ClinicianSummary {
+  id: string;
+  patient_id: string;
+  doctor_id: string;
+  subjective: string;
+  objective: string;
+  assessment: string;
+  plan: string;
+  is_approved: boolean;
+  approved_at?: string | null;
+  created_at: string;
+}

@@ -15,6 +15,11 @@ import type {
   TreatmentEvent,
   TreatmentEventCreate,
   LongitudinalIntelligenceReport,
+  AIChatRequest,
+  AIChatResponse,
+  ClinicianSummaryDraft,
+  ClinicianSummaryApproveRequest,
+  ClinicianSummary,
 } from '../types';
 import { storageService, networkService } from '../platform';
 import { offlineDb } from './db';
@@ -464,5 +469,51 @@ export const api = {
       headers,
     });
     if (!res.ok) throw new Error('Failed to delete treatment event');
+  },
+
+  // Phase 7: Grounded AI Assistant & Clinician Summary
+  async sendAIChat(req: AIChatRequest): Promise<AIChatResponse> {
+    const headers = await getAuthHeader();
+    const res = await fetch(`${API_BASE}/ai/chat`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(req),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Failed to communicate with AI Assistant' }));
+      throw new Error(err.detail || 'Failed to communicate with AI Assistant');
+    }
+    return res.json();
+  },
+
+  async getClinicianSummaryDraft(patientId: string): Promise<ClinicianSummaryDraft> {
+    const headers = await getAuthHeader();
+    const res = await fetch(`${API_BASE}/ai/clinician-summary/draft/${patientId}`, { headers });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Failed to generate clinician summary draft' }));
+      throw new Error(err.detail || 'Failed to generate clinician summary draft');
+    }
+    return res.json();
+  },
+
+  async approveClinicianSummary(req: ClinicianSummaryApproveRequest): Promise<ClinicianSummary> {
+    const headers = await getAuthHeader();
+    const res = await fetch(`${API_BASE}/ai/clinician-summary/approve`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(req),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Failed to approve clinician summary' }));
+      throw new Error(err.detail || 'Failed to approve clinician summary');
+    }
+    return res.json();
+  },
+
+  async getApprovedClinicianSummaries(patientId: string): Promise<ClinicianSummary[]> {
+    const headers = await getAuthHeader();
+    const res = await fetch(`${API_BASE}/ai/clinician-summaries/${patientId}`, { headers });
+    if (!res.ok) throw new Error('Failed to fetch clinician summaries');
+    return res.json();
   },
 };
