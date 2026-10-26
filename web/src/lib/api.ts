@@ -24,7 +24,8 @@ import type {
 import { storageService, networkService } from '../platform';
 import { offlineDb } from './db';
 
-const API_BASE = '/api/v1';
+const API_ORIGIN = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+const API_BASE = `${API_ORIGIN}/api/v1`;
 
 async function getAuthHeader(): Promise<HeadersInit> {
   const token = await storageService.getItem<string>('auth_token');

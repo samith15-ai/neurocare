@@ -1,5 +1,7 @@
 import os
-from typing import List
+from typing import List, Union
+import json
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
@@ -24,6 +26,21 @@ class Settings(BaseSettings):
         "capacitor://localhost",
         "http://localhost"
     ]
+
+    @field_validator("CORS_ORIGINS", mode="before")
+    @classmethod
+    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
+        if isinstance(v, str):
+            v_str = v.strip()
+            if v_str.startswith("[") and v_str.endswith("]"):
+                try:
+                    return json.loads(v_str)
+                except Exception:
+                    pass
+            return [origin.strip() for origin in v_str.split(",") if origin.strip()]
+        elif isinstance(v, list):
+            return v
+        return ["*"]
     
     # Database
     DATABASE_URL: str = "sqlite:///./neurocare_dev.db"

@@ -39,6 +39,8 @@ Base.metadata.create_all(bind=engine)
 
 def auto_migrate_sqlite():
     """Ensure newly added columns exist in SQLite database tables without wiping existing data."""
+    if engine.dialect.name != "sqlite":
+        return
     try:
         with engine.connect() as conn:
             # Check baselines table

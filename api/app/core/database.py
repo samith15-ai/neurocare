@@ -2,14 +2,25 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from app.core.config import settings
 
-# SQLite needs connect_args check_same_thread=False
-connect_args = {"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {}
+db_url = settings.DATABASE_URL
+# Supabase and older Heroku connection strings may begin with postgres://
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
 
-engine = create_engine(
-    settings.DATABASE_URL,
-    connect_args=connect_args,
-    echo=settings.DEBUG and settings.ENVIRONMENT == "development"
-)
+# SQLite needs connect_args check_same_thread=False; PostgreSQL benefits from pool pre-ping
+if "sqlite" in db_url:
+    engine = create_engine(
+        db_url,
+        connect_args={"check_same_thread": False},
+        echo=settings.DEBUG and settings.ENVIRONMENT == "development"
+    )
+else:
+    engine = create_engine(
+        db_url,
+        pool_pre_ping=True,
+        pool_recycle=300,
+        echo=settings.DEBUG and settings.ENVIRONMENT == "development"
+    )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
