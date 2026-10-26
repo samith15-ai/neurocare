@@ -3,9 +3,11 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 from app.core.config import settings
 
 db_url = settings.DATABASE_URL
-# Supabase and older Heroku connection strings may begin with postgres://
+# Supabase and older connection strings may begin with postgres:// or postgresql://
 if db_url.startswith("postgres://"):
-    db_url = db_url.replace("postgres://", "postgresql://", 1)
+    db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)
+elif db_url.startswith("postgresql://") and not db_url.startswith("postgresql+"):
+    db_url = db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
 
 # SQLite needs connect_args check_same_thread=False; PostgreSQL benefits from pool pre-ping
 if "sqlite" in db_url:
