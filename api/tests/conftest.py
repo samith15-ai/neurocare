@@ -4,6 +4,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.main import app
 from app.core.database import Base, get_db
+from app.models.user import User
+from app.core.security import get_password_hash
 
 TEST_DATABASE_URL = "sqlite:///./test_neurocare.db"
 
@@ -35,3 +37,19 @@ def client(db_session):
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
+
+@pytest.fixture
+def test_doctor(db_session):
+    user = db_session.query(User).filter(User.email == "doctor_test@neurocare.org").first()
+    if not user:
+        user = User(
+            email="doctor_test@neurocare.org",
+            hashed_password=get_password_hash("Doctor123!"),
+            full_name="Dr. Test Physician",
+            role="doctor",
+            is_active=True
+        )
+        db_session.add(user)
+        db_session.commit()
+        db_session.refresh(user)
+    return user

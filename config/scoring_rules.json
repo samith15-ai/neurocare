@@ -1,6 +1,10 @@
 {
-  "version": "1.0.0",
-  "updated_at": "2026-10-26T00:00:00Z",
+  "version": "1.1.0",
+  "updated_at": "2026-10-26T22:15:00Z",
+  "meta": {
+    "system_name": "NeuroCare Scoring & Late Fusion Engine",
+    "disclaimer": "Reference ranges are versioned prototype norms from preliminary contactless cohorts. They are not FDA-cleared diagnostic thresholds and are explicitly labeled as decision-support placeholders."
+  },
   "principles": {
     "quality_is_not_pathology": true,
     "missing_is_not_abnormal": true,
@@ -8,47 +12,235 @@
     "traceability_required": true,
     "diagnosis_prohibited": true
   },
-  "approved_terminology": {
-    "observed_change": "Observed change",
-    "possible_clinical_relevance": "Possible clinical relevance",
-    "warrants_review": "May warrant clinical review",
-    "not_assessed": "Not assessed",
-    "insufficient_quality": "Insufficient recording quality"
-  },
-  "prohibited_terminology": [
-    "diagnosed with",
-    "has Parkinson's",
-    "has ALS",
-    "has stroke",
-    "disease probability",
-    "doctor missed symptom",
-    "confirmed pathology"
-  ],
-  "late_fusion_weights": {
-    "facial_expressivity_weight": 0.30,
-    "motor_kinematics_weight": 0.40,
-    "vocal_acoustics_weight": 0.30
-  },
-  "status_mapping": {
-    "nominal": {
-      "label": "Stable / Nominal",
-      "severity": "low",
-      "color": "emerald"
+  "overall_statuses": {
+    "no_flag": {
+      "status": "No flag",
+      "threshold_max_z": 1.0,
+      "color": "emerald",
+      "guidance": "Measurements are nominal and within expected baseline variance."
     },
-    "mild_deviation": {
-      "label": "Observed mild variation from baseline",
-      "severity": "moderate",
-      "color": "amber"
+    "watch": {
+      "status": "Watch",
+      "threshold_min_z": 1.0,
+      "threshold_max_z": 2.0,
+      "color": "amber",
+      "guidance": "Observed mild variation from reference baseline. Routine periodic monitoring recommended."
     },
-    "notable_deviation": {
-      "label": "Observed change - May warrant clinical review",
-      "severity": "high",
-      "color": "rose"
-    },
-    "unassessed": {
-      "label": "Not assessed / Insufficient recording quality",
-      "severity": "neutral",
-      "color": "slate"
+    "review_advised": {
+      "status": "Review advised",
+      "threshold_min_z": 2.0,
+      "color": "rose",
+      "guidance": "Notable deviation or behavioral pattern observed. Clinical review by a qualified physician is advised."
     }
-  }
+  },
+  "reference_ranges": {
+    "right_finger_tap_frequency_hz": {
+      "mean": 3.4,
+      "sd": 0.55,
+      "unit": "Hz",
+      "direction": "lower_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Placeholder reference derived from preliminary pilot cohort."
+    },
+    "left_finger_tap_frequency_hz": {
+      "mean": 3.2,
+      "sd": 0.55,
+      "unit": "Hz",
+      "direction": "lower_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Placeholder reference derived from preliminary pilot cohort."
+    },
+    "finger_tap_frequency_hz": {
+      "mean": 4.5,
+      "sd": 0.8,
+      "unit": "Hz",
+      "direction": "lower_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Standard aggregate finger tapping frequency reference."
+    },
+    "right_finger_tap_mean_amplitude": {
+      "mean": 1.10,
+      "sd": 0.20,
+      "unit": "ratio",
+      "direction": "lower_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Placeholder reference derived from preliminary pilot cohort."
+    },
+    "finger_tap_mean_amplitude": {
+      "mean": 1.20,
+      "sd": 0.25,
+      "unit": "ratio",
+      "direction": "lower_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Aggregate finger tap amplitude normalized by palm width."
+    },
+    "right_finger_tap_iti_cv": {
+      "mean": 0.12,
+      "sd": 0.04,
+      "unit": "ratio",
+      "direction": "higher_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Placeholder reference derived from preliminary pilot cohort."
+    },
+    "finger_tap_interval_cv": {
+      "mean": 0.12,
+      "sd": 0.04,
+      "unit": "ratio",
+      "direction": "higher_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Inter-tap interval coefficient of variation."
+    },
+    "bilateral_tap_frequency_asymmetry": {
+      "mean": 0.06,
+      "sd": 0.04,
+      "unit": "ratio",
+      "direction": "higher_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Placeholder reference derived from preliminary pilot cohort."
+    },
+    "speech_pitch_mean_hz": {
+      "mean": 165.0,
+      "sd": 35.0,
+      "unit": "Hz",
+      "direction": "bidirectional",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Pitch varies widely by biological sex and age; not an autonomous clinical indicator."
+    },
+    "ddk_syllable_rate_hz": {
+      "mean": 5.8,
+      "sd": 0.75,
+      "unit": "syllables/s",
+      "direction": "lower_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Placeholder norm from healthy speech literature."
+    },
+    "ddk_regularity_cv": {
+      "mean": 0.11,
+      "sd": 0.035,
+      "unit": "ratio",
+      "direction": "higher_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Placeholder reference derived from preliminary pilot cohort."
+    },
+    "ddk_regularity_score": {
+      "mean": 0.90,
+      "sd": 0.10,
+      "unit": "ratio",
+      "direction": "lower_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Normalized speech diadochokinetic regularity score."
+    },
+    "harmonics_to_noise_ratio_db": {
+      "mean": 23.5,
+      "sd": 3.0,
+      "unit": "dB",
+      "direction": "lower_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Highly dependent on room noise floor and microphone transducer."
+    },
+    "smile_amplitude_mm": {
+      "mean": 14.8,
+      "sd": 2.5,
+      "unit": "mm",
+      "direction": "lower_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Placeholder estimate using 63mm adult interocular scale normalization."
+    },
+    "smile_symmetry_ratio": {
+      "mean": 0.95,
+      "sd": 0.04,
+      "unit": "ratio",
+      "direction": "lower_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Computed with 3D head-yaw perspective compensation."
+    },
+    "facial_asymmetry_ratio": {
+      "mean": 0.05,
+      "sd": 0.03,
+      "unit": "ratio",
+      "direction": "higher_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Composite facial expression asymmetry ratio."
+    },
+    "vocal_jitter_percent": {
+      "mean": 0.80,
+      "sd": 0.30,
+      "unit": "%",
+      "direction": "higher_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Cycle-to-cycle acoustic frequency perturbation."
+    }
+  },
+  "domain_weights": {
+    "motor": 0.35,
+    "speech": 0.35,
+    "facial": 0.30,
+    "gait": 0.0,
+    "balance": 0.0,
+    "cognition": 0.0
+  },
+  "pattern_rules": [
+    {
+      "rule_id": "RULE_SLOWNESS_REDUCED_AMPLITUDE",
+      "domains": ["motor"],
+      "title": "Slowness with reduced movement amplitude",
+      "requires_multimodal": false,
+      "explanation": "Observed simultaneous reduction in finger-tapping cadence and peak opening amplitude compared to reference norm.",
+      "criteria": [
+        { "feature": "right_finger_tap_frequency_hz", "op": "z_lte", "threshold": -1.5 },
+        { "feature": "right_finger_tap_mean_amplitude", "op": "z_lte", "threshold": -1.5 }
+      ]
+    },
+    {
+      "rule_id": "RULE_LEFT_RIGHT_ASYMMETRY",
+      "domains": ["motor", "facial"],
+      "title": "Observed left-right movement asymmetry",
+      "requires_multimodal": false,
+      "explanation": "Bilateral comparison indicates noticeable asymmetry between right and left performance (> 20% motor difference or < 82% smile symmetry).",
+      "criteria": [
+        { "feature": "bilateral_tap_frequency_asymmetry", "op": "val_gte", "threshold": 0.20 },
+        { "feature": "smile_symmetry_ratio", "op": "val_lte", "threshold": 0.82 }
+      ],
+      "operator": "OR"
+    },
+    {
+      "rule_id": "RULE_IRREGULAR_MOTOR_RHYTHM",
+      "domains": ["motor"],
+      "title": "Irregular motor rhythm and hesitations",
+      "requires_multimodal": false,
+      "explanation": "Inter-tap interval variance indicates cadence irregularity or intermittent movement hesitation.",
+      "criteria": [
+        { "feature": "right_finger_tap_iti_cv", "op": "z_gte", "threshold": 1.8 }
+      ]
+    },
+    {
+      "rule_id": "RULE_COORDINATION_MULTIMODAL",
+      "domains": ["motor", "speech"],
+      "title": "Multimodal behavioral coordination changes",
+      "requires_multimodal": true,
+      "explanation": "Evidence from both motor tapping rhythm and rapid speech articulation ('pa-ta-ka') shows concurrent coordination variability.",
+      "criteria": [
+        { "feature": "right_finger_tap_iti_cv", "op": "z_gte", "threshold": 1.5, "domain": "motor" },
+        { "feature": "ddk_regularity_cv", "op": "z_gte", "threshold": 1.5, "domain": "speech" }
+      ],
+      "operator": "AND"
+    }
+  ]
 }

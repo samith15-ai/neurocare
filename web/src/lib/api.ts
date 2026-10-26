@@ -173,6 +173,33 @@ export const api = {
     return res.json();
   },
 
+  async getReport(reportId: string): Promise<Report> {
+    const headers = await getAuthHeader();
+    const res = await fetch(`${API_BASE}/reports/${reportId}`, { headers });
+    if (!res.ok) throw new Error('Report not found');
+    return res.json();
+  },
+
+  async submitDoctorReview(
+    reportId: string,
+    feedback: 'agree' | 'disagree' | 'unsure',
+    notes?: string,
+    doctorUserId?: string
+  ): Promise<Report> {
+    const headers = await getAuthHeader();
+    const res = await fetch(`${API_BASE}/reports/${reportId}/review`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        feedback,
+        notes,
+        doctor_user_id: doctorUserId,
+      }),
+    });
+    if (!res.ok) throw new Error('Failed to submit doctor review');
+    return res.json();
+  },
+
   async approveReport(reportId: string, doctorUserId?: string): Promise<Report> {
     const headers = await getAuthHeader();
     const res = await fetch(`${API_BASE}/reports/${reportId}/approve${doctorUserId ? `?doctor_user_id=${doctorUserId}` : ''}`, {

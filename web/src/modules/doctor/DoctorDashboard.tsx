@@ -246,6 +246,7 @@ export const DoctorDashboard: React.FC = () => {
               {activeReport && (
                 <ReportView
                   report={activeReport}
+                  patient={selectedPatient}
                   canApprove={true}
                   onApproved={(updated) => setActiveReport(updated)}
                 />

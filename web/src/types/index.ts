@@ -65,7 +65,7 @@ export interface Baseline {
 export interface Finding {
   id: string;
   assessment_id: string;
-  domain: 'facial' | 'motor' | 'vocal' | 'composite';
+  domain: 'facial' | 'motor' | 'speech' | 'vocal' | 'composite' | 'emergency_alert' | string;
   finding_title: string;
   explanation: string;
   evidence_metrics: string;
@@ -79,13 +79,17 @@ export interface Report {
   assessment_id: string;
   patient_id: string;
   summary_text: string;
+  overall_status?: 'No flag' | 'Watch' | 'Review advised' | string;
   late_fusion_score: number | null;
+  domain_scores_json?: string;
   emergency_fast_triggered: boolean;
   emergency_details?: string;
   explainability_notes?: string;
   is_simulated: boolean;
   approved_by_doctor: boolean;
   approved_by_user_id?: string;
+  doctor_feedback?: 'agree' | 'disagree' | 'unsure' | null;
+  doctor_notes?: string | null;
   created_at: string;
   findings?: Finding[];
   features?: Feature[];

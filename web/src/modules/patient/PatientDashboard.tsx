@@ -7,6 +7,7 @@ import { FingerTappingAssessment } from '../assessments/FingerTappingAssessment'
 import { SpeechAssessment } from '../assessments/SpeechAssessment';
 import { FacialMovementAssessment } from '../assessments/FacialMovementAssessment';
 import { LongitudinalChart } from '../monitoring/LongitudinalChart';
+import { ReportView } from '../reports/ReportView';
 import type { Patient, TrajectoryPoint, Feature, Report } from '../../types';
 
 export const PatientDashboard: React.FC = () => {
@@ -187,21 +188,11 @@ export const PatientDashboard: React.FC = () => {
 
       {/* Latest Clinician-Approved Report Summary */}
       {latestReport && (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider">
-              Latest Clinician Summary
-            </h3>
-            {latestReport.approved_by_doctor && (
-              <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-bold">
-                Doctor Reviewed
-              </span>
-            )}
-          </div>
-          <p className="text-xs text-slate-300 leading-relaxed mt-1">
-            {latestReport.summary_text}
-          </p>
-        </div>
+        <ReportView
+          report={latestReport}
+          patient={patient || undefined}
+          canApprove={false}
+        />
       )}
 
       {/* Modal for Guided Assessment */}
