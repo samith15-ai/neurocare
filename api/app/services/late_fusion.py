@@ -129,6 +129,12 @@ class LateFusionService:
                 domains["speech"].append(dev)
             elif "facial" in fname or "smile" in fname or "eyebrow" in fname or "blink" in fname:
                 domains["facial"].append(dev)
+            elif "gait" in fname or "cadence" in fname or "stride" in fname or "walk" in fname or "turning" in fname:
+                domains["gait"].append(dev)
+            elif "balance" in fname or "sway" in fname or "stability" in fname:
+                domains["balance"].append(dev)
+            elif "cognitive" in fname or "reaction_time" in fname or "gonogo" in fname or "sequence" in fname:
+                domains["cognition"].append(dev)
 
         domain_scores: Dict[str, Optional[float]] = {}
         for d, vals in domains.items():
@@ -317,5 +323,33 @@ class LateFusionService:
             "summary": summary,
             "advisory": "NeuroCare is a clinical decision support tool. Statuses represent monitoring alerts, not medical diagnoses."
         }
+
+    def compute_test_retest_change(
+        self,
+        current_features: List[Dict[str, Any]],
+        baseline_features: Dict[str, float]
+    ) -> List[Dict[str, Any]]:
+        """
+        Calculates longitudinal change relative to patient's own baseline:
+        delta = current_val - baseline_val
+        percent_change = (delta / baseline_val) * 100
+        """
+        comparisons = []
+        for feat in current_features:
+            fname = feat.get("feature_name")
+            curr_val = feat.get("value")
+            if fname and fname in baseline_features and baseline_features[fname] != 0:
+                base_val = baseline_features[fname]
+                delta = curr_val - base_val
+                pct = (delta / abs(base_val)) * 100.0
+                comparisons.append({
+                    "feature_name": fname,
+                    "current_value": round(curr_val, 3),
+                    "baseline_value": round(base_val, 3),
+                    "delta": round(delta, 3),
+                    "percent_change": round(pct, 1),
+                    "trend_direction": "declining" if delta < 0 else "elevated" if delta > 0 else "stable"
+                })
+        return comparisons
 
 late_fusion = LateFusionService()

@@ -1,6 +1,6 @@
 {
-  "version": "1.1.0",
-  "updated_at": "2026-10-26T22:15:00Z",
+  "version": "1.2.0",
+  "updated_at": "2026-10-26T22:35:00Z",
   "meta": {
     "system_name": "NeuroCare Scoring & Late Fusion Engine",
     "disclaimer": "Reference ranges are versioned prototype norms from preliminary contactless cohorts. They are not FDA-cleared diagnostic thresholds and are explicitly labeled as decision-support placeholders."
@@ -186,15 +186,150 @@
       "source": "prototype_norm_v1",
       "is_clinically_validated": false,
       "limitation_notice": "Cycle-to-cycle acoustic frequency perturbation."
+    },
+    "gait_cadence_steps_per_min": {
+      "mean": 108.0,
+      "sd": 12.0,
+      "unit": "steps/min",
+      "direction": "lower_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Standard ambulatory cadence estimate during 5m corridor walking."
+    },
+    "gait_step_symmetry_ratio": {
+      "mean": 0.94,
+      "sd": 0.05,
+      "unit": "ratio",
+      "direction": "lower_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Temporal step ratio (min step time / max step time)."
+    },
+    "gait_step_variability_cv": {
+      "mean": 0.045,
+      "sd": 0.015,
+      "unit": "ratio",
+      "direction": "higher_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Stride-to-stride temporal coefficient of variation."
+    },
+    "gait_arm_swing_asymmetry": {
+      "mean": 0.08,
+      "sd": 0.05,
+      "unit": "ratio",
+      "direction": "higher_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Inter-arm anterior-posterior excursion asymmetry ratio."
+    },
+    "gait_trunk_lean_deg": {
+      "mean": 3.5,
+      "sd": 1.5,
+      "unit": "degrees",
+      "direction": "higher_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Sagittal spine alignment relative to gravity vector."
+    },
+    "gait_turning_duration_sec": {
+      "mean": 2.1,
+      "sd": 0.5,
+      "unit": "seconds",
+      "direction": "higher_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Time required to complete 180-degree turn."
+    },
+    "balance_sway_path_norm": {
+      "mean": 0.18,
+      "sd": 0.06,
+      "unit": "ratio",
+      "direction": "higher_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Normalized center-of-mass cumulative excursion during 15s quiet stance."
+    },
+    "balance_sway_area_norm": {
+      "mean": 0.035,
+      "sd": 0.015,
+      "unit": "ratio²",
+      "direction": "higher_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "95% confidence ellipse area of postural sway."
+    },
+    "balance_mean_velocity_norm": {
+      "mean": 0.012,
+      "sd": 0.004,
+      "unit": "ratio/s",
+      "direction": "higher_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Mean sway displacement velocity."
+    },
+    "balance_trunk_stability_deg": {
+      "mean": 1.2,
+      "sd": 0.4,
+      "unit": "degrees",
+      "direction": "higher_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Standard deviation of torso coronal tilt during stance."
+    },
+    "cognitive_simple_reaction_time_ms": {
+      "mean": 275.0,
+      "sd": 45.0,
+      "unit": "ms",
+      "direction": "higher_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Median visual simple reaction time across 5 randomized trials."
+    },
+    "cognitive_rt_variability_ms": {
+      "mean": 38.0,
+      "sd": 14.0,
+      "unit": "ms",
+      "direction": "higher_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Standard deviation of simple reaction time."
+    },
+    "cognitive_gonogo_accuracy_percent": {
+      "mean": 94.0,
+      "sd": 5.0,
+      "unit": "%",
+      "direction": "lower_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Combined inhibition and target hit accuracy on Go/No-Go task."
+    },
+    "cognitive_gonogo_false_alarm_rate": {
+      "mean": 0.05,
+      "sd": 0.04,
+      "unit": "ratio",
+      "direction": "higher_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Commission errors (response on No-Go stimulus)."
+    },
+    "cognitive_sequence_span_length": {
+      "mean": 5.5,
+      "sd": 1.1,
+      "unit": "items",
+      "direction": "lower_is_change",
+      "source": "prototype_norm_v1",
+      "is_clinically_validated": false,
+      "limitation_notice": "Maximum forward spatial/digit sequence span attained."
     }
   },
   "domain_weights": {
-    "motor": 0.35,
-    "speech": 0.35,
-    "facial": 0.30,
-    "gait": 0.0,
-    "balance": 0.0,
-    "cognition": 0.0
+    "motor": 0.20,
+    "speech": 0.20,
+    "facial": 0.15,
+    "gait": 0.20,
+    "balance": 0.15,
+    "cognition": 0.10
   },
   "pattern_rules": [
     {
@@ -239,6 +374,40 @@
       "criteria": [
         { "feature": "right_finger_tap_iti_cv", "op": "z_gte", "threshold": 1.5, "domain": "motor" },
         { "feature": "ddk_regularity_cv", "op": "z_gte", "threshold": 1.5, "domain": "speech" }
+      ],
+      "operator": "AND"
+    },
+    {
+      "rule_id": "RULE_POSTURAL_INSTABILITY_SWAY",
+      "domains": ["balance"],
+      "title": "Postural instability during quiet stance",
+      "requires_multimodal": false,
+      "explanation": "Postural sway analysis indicates elevated center-of-mass excursion path or sway area during quiet stance.",
+      "criteria": [
+        { "feature": "balance_sway_path_norm", "op": "z_gte", "threshold": 1.8 }
+      ]
+    },
+    {
+      "rule_id": "RULE_GAIT_ASYMMETRY_REDUCED_ARM_SWING",
+      "domains": ["gait"],
+      "title": "Gait asymmetry with unilateral arm swing reduction",
+      "requires_multimodal": false,
+      "explanation": "Ambulation analysis demonstrates step temporal asymmetry (> 1.6 SD below norm) coupled with prominent arm-swing asymmetry.",
+      "criteria": [
+        { "feature": "gait_step_symmetry_ratio", "op": "z_lte", "threshold": -1.6 },
+        { "feature": "gait_arm_swing_asymmetry", "op": "z_gte", "threshold": 1.8 }
+      ],
+      "operator": "AND"
+    },
+    {
+      "rule_id": "RULE_COGNITIVE_PSYCHOMOTOR_SLOWNESS",
+      "domains": ["cognition"],
+      "title": "Psychomotor processing slowness with attention variability",
+      "requires_multimodal": false,
+      "explanation": "Cognitive performance demonstrates reaction time prolongation alongside reduced sequence span.",
+      "criteria": [
+        { "feature": "cognitive_simple_reaction_time_ms", "op": "z_gte", "threshold": 1.8 },
+        { "feature": "cognitive_sequence_span_length", "op": "z_lte", "threshold": -1.5 }
       ],
       "operator": "AND"
     }

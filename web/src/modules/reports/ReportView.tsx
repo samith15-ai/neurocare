@@ -353,9 +353,9 @@ export const ReportView: React.FC<ReportViewProps> = ({
             { key: 'motor', label: 'Motor (Tapping)', val: domainScores.motor, active: true },
             { key: 'speech', label: 'Speech & Voice', val: domainScores.speech, active: true },
             { key: 'facial', label: 'Facial Motion', val: domainScores.facial, active: true },
-            { key: 'gait', label: 'Gait (Pending)', val: null, active: false },
-            { key: 'balance', label: 'Balance (Pending)', val: null, active: false },
-            { key: 'cognition', label: 'Cognition (Pending)', val: null, active: false },
+            { key: 'gait', label: 'Gait (Ambulation)', val: domainScores.gait, active: true },
+            { key: 'balance', label: 'Balance (Stance)', val: domainScores.balance, active: true },
+            { key: 'cognition', label: 'Cognition', val: domainScores.cognition, active: true },
           ].map((item) => {
             const hasVal = item.val !== null && item.val !== undefined;
             const deviation: number = (hasVal && typeof item.val === 'number') ? item.val : 0;

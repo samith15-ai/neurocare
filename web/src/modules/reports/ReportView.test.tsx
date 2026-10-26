@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, afterEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
-import React from 'react';
 import { ReportView } from './ReportView';
 import type { Report, Patient, Finding } from '../../types';
 
@@ -71,7 +70,9 @@ describe('ReportView Component', () => {
     expect(screen.getByText(/Motor \(Tapping\)/i)).toBeDefined();
     expect(screen.getByText(/Speech & Voice/i)).toBeDefined();
     expect(screen.getByText(/Facial Motion/i)).toBeDefined();
-    expect(screen.getByText(/Gait \(Pending\)/i)).toBeDefined();
+    expect(screen.getByText(/Gait \(Ambulation\)/i)).toBeDefined();
+    expect(screen.getByText(/Balance \(Stance\)/i)).toBeDefined();
+    expect(screen.getByText(/Cognition/i)).toBeDefined();
 
     // Check simulated badge
     expect(screen.getAllByText(/SIMULATED/i).length).toBeGreaterThan(0);

@@ -5,6 +5,9 @@ import { CaptureEngine } from '../capture/CaptureEngine';
 import { FingerTappingAssessment } from '../assessments/FingerTappingAssessment';
 import { SpeechAssessment } from '../assessments/SpeechAssessment';
 import { FacialMovementAssessment } from '../assessments/FacialMovementAssessment';
+import { GaitAssessment } from '../assessments/GaitAssessment';
+import { BalanceAssessment } from '../assessments/BalanceAssessment';
+import { CognitiveAssessment } from '../assessments/CognitiveAssessment';
 import { LongitudinalChart } from '../monitoring/LongitudinalChart';
 import { ReportView } from '../reports/ReportView';
 import { AIAssistant } from '../ai/AIAssistant';
@@ -20,7 +23,9 @@ export const DoctorDashboard: React.FC = () => {
   // Modals & Panels
   const [showEnrollModal, setShowEnrollModal] = useState(false);
   const [showAssessmentModal, setShowAssessmentModal] = useState(false);
-  const [assessmentType, setAssessmentType] = useState<'multimodal_standard' | 'facial' | 'motor' | 'vocal'>('multimodal_standard');
+  const [assessmentType, setAssessmentType] = useState<
+    'multimodal_standard' | 'motor' | 'vocal' | 'facial' | 'gait' | 'balance' | 'cognition'
+  >('motor');
 
   // New Patient Form
   const [newMrn, setNewMrn] = useState(`NC-2026-${Math.floor(1000 + Math.random() * 9000)}`);
@@ -384,19 +389,19 @@ export const DoctorDashboard: React.FC = () => {
             </div>
 
             {/* Assessment Type Tabs */}
-            <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
-              {(['multimodal_standard', 'facial', 'motor', 'vocal'] as const).map((type) => (
+            <div className="flex items-center gap-2 border-b border-slate-800 pb-3 overflow-x-auto">
+              {(['motor', 'vocal', 'facial', 'gait', 'balance', 'cognition', 'multimodal_standard'] as const).map((type) => (
                 <button
                   key={type}
                   type="button"
                   onClick={() => setAssessmentType(type)}
-                  className={`text-xs font-semibold px-3 py-1.5 rounded-lg capitalize transition ${
+                  className={`text-xs font-semibold px-3 py-1.5 rounded-lg capitalize whitespace-nowrap transition ${
                     assessmentType === type
                       ? 'bg-sky-600 text-white shadow'
                       : 'bg-slate-800 text-slate-400 hover:text-slate-200'
                   }`}
                 >
-                  {type.replace('_', ' ')}
+                  {type === 'vocal' ? 'Speech / Vocal' : type === 'motor' ? 'Finger Tapping' : type.replace('_', ' ')}
                 </button>
               ))}
             </div>
@@ -430,6 +435,45 @@ export const DoctorDashboard: React.FC = () => {
               />
             ) : assessmentType === 'facial' ? (
               <FacialMovementAssessment
+                patientId={selectedPatient.id}
+                onAssessmentCompleted={async (assId) => {
+                  setShowAssessmentModal(false);
+                  await selectPatient(selectedPatient);
+                  try {
+                    const rep = await api.getReportForAssessment(assId);
+                    setActiveReport(rep);
+                  } catch {}
+                }}
+                onCancel={() => setShowAssessmentModal(false)}
+              />
+            ) : assessmentType === 'gait' ? (
+              <GaitAssessment
+                patientId={selectedPatient.id}
+                onAssessmentCompleted={async (assId) => {
+                  setShowAssessmentModal(false);
+                  await selectPatient(selectedPatient);
+                  try {
+                    const rep = await api.getReportForAssessment(assId);
+                    setActiveReport(rep);
+                  } catch {}
+                }}
+                onCancel={() => setShowAssessmentModal(false)}
+              />
+            ) : assessmentType === 'balance' ? (
+              <BalanceAssessment
+                patientId={selectedPatient.id}
+                onAssessmentCompleted={async (assId) => {
+                  setShowAssessmentModal(false);
+                  await selectPatient(selectedPatient);
+                  try {
+                    const rep = await api.getReportForAssessment(assId);
+                    setActiveReport(rep);
+                  } catch {}
+                }}
+                onCancel={() => setShowAssessmentModal(false)}
+              />
+            ) : assessmentType === 'cognition' ? (
+              <CognitiveAssessment
                 patientId={selectedPatient.id}
                 onAssessmentCompleted={async (assId) => {
                   setShowAssessmentModal(false);

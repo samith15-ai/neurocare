@@ -6,6 +6,9 @@ import { CaptureEngine } from '../capture/CaptureEngine';
 import { FingerTappingAssessment } from '../assessments/FingerTappingAssessment';
 import { SpeechAssessment } from '../assessments/SpeechAssessment';
 import { FacialMovementAssessment } from '../assessments/FacialMovementAssessment';
+import { GaitAssessment } from '../assessments/GaitAssessment';
+import { BalanceAssessment } from '../assessments/BalanceAssessment';
+import { CognitiveAssessment } from '../assessments/CognitiveAssessment';
 import { LongitudinalChart } from '../monitoring/LongitudinalChart';
 import { ReportView } from '../reports/ReportView';
 import type { Patient, TrajectoryPoint, Feature, Report } from '../../types';
@@ -15,7 +18,9 @@ export const PatientDashboard: React.FC = () => {
   const [patient, setPatient] = useState<Patient | null>(null);
   const [trajectoryPoints, setTrajectoryPoints] = useState<TrajectoryPoint[]>([]);
   const [showAssessment, setShowAssessment] = useState(false);
-  const [assessmentMode, setAssessmentMode] = useState<'finger_tapping' | 'speech' | 'facial' | 'multimodal'>('finger_tapping');
+  const [assessmentMode, setAssessmentMode] = useState<
+    'finger_tapping' | 'speech' | 'facial' | 'gait' | 'balance' | 'cognition' | 'multimodal'
+  >('finger_tapping');
   const [latestReport, setLatestReport] = useState<Report | null>(null);
   const [assessmentSuccess, setAssessmentSuccess] = useState(false);
 
@@ -130,7 +135,7 @@ export const PatientDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 mt-1">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-1">
           <button
             type="button"
             onClick={() => {
@@ -167,12 +172,34 @@ export const PatientDashboard: React.FC = () => {
           <button
             type="button"
             onClick={() => {
-              setAssessmentMode('multimodal');
+              setAssessmentMode('gait');
               setShowAssessment(true);
             }}
-            className="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold py-3 px-2 rounded-2xl flex items-center justify-center gap-1 text-xs transition active:scale-[0.98]"
+            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-2 rounded-2xl shadow-lg shadow-blue-950 flex items-center justify-center gap-1 text-xs transition active:scale-[0.98]"
           >
-            <span>Standard Multi</span>
+            <span>Walking Gait</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setAssessmentMode('balance');
+              setShowAssessment(true);
+            }}
+            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-2 rounded-2xl shadow-lg shadow-emerald-950 flex items-center justify-center gap-1 text-xs transition active:scale-[0.98]"
+          >
+            <span>Balance Test</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setAssessmentMode('cognition');
+              setShowAssessment(true);
+            }}
+            className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-2 rounded-2xl shadow-lg shadow-purple-950 flex items-center justify-center gap-1 text-xs transition active:scale-[0.98]"
+          >
+            <span>Cognitive Suite</span>
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -241,6 +268,51 @@ export const PatientDashboard: React.FC = () => {
               />
             ) : assessmentMode === 'facial' ? (
               <FacialMovementAssessment
+                patientId={patient.id}
+                onAssessmentCompleted={async (assId) => {
+                  setShowAssessment(false);
+                  setAssessmentSuccess(true);
+                  try {
+                    const rep = await api.getReportForAssessment(assId);
+                    setLatestReport(rep);
+                    const longData = await api.getLongitudinal(patient.id);
+                    setTrajectoryPoints(longData.trajectory_points);
+                  } catch {}
+                }}
+                onCancel={() => setShowAssessment(false)}
+              />
+            ) : assessmentMode === 'gait' ? (
+              <GaitAssessment
+                patientId={patient.id}
+                onAssessmentCompleted={async (assId) => {
+                  setShowAssessment(false);
+                  setAssessmentSuccess(true);
+                  try {
+                    const rep = await api.getReportForAssessment(assId);
+                    setLatestReport(rep);
+                    const longData = await api.getLongitudinal(patient.id);
+                    setTrajectoryPoints(longData.trajectory_points);
+                  } catch {}
+                }}
+                onCancel={() => setShowAssessment(false)}
+              />
+            ) : assessmentMode === 'balance' ? (
+              <BalanceAssessment
+                patientId={patient.id}
+                onAssessmentCompleted={async (assId) => {
+                  setShowAssessment(false);
+                  setAssessmentSuccess(true);
+                  try {
+                    const rep = await api.getReportForAssessment(assId);
+                    setLatestReport(rep);
+                    const longData = await api.getLongitudinal(patient.id);
+                    setTrajectoryPoints(longData.trajectory_points);
+                  } catch {}
+                }}
+                onCancel={() => setShowAssessment(false)}
+              />
+            ) : assessmentMode === 'cognition' ? (
+              <CognitiveAssessment
                 patientId={patient.id}
                 onAssessmentCompleted={async (assId) => {
                   setShowAssessment(false);

@@ -42,7 +42,7 @@ export interface Assessment {
 export interface Feature {
   id?: string;
   assessment_id: string;
-  domain: 'facial' | 'motor' | 'vocal';
+  domain: 'facial' | 'motor' | 'vocal' | 'gait' | 'balance' | 'cognition' | string;
   feature_name: string;
   value: number;
   unit: string;
@@ -54,7 +54,7 @@ export interface Feature {
 export interface Baseline {
   id: string;
   patient_id: string;
-  domain: 'facial' | 'motor' | 'vocal';
+  domain: 'facial' | 'motor' | 'vocal' | 'gait' | 'balance' | 'cognition' | string;
   feature_name: string;
   mean_value: number;
   std_value: number;
