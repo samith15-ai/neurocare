@@ -235,3 +235,100 @@ export interface StandardAssessmentOutput<T = Record<string, number | string>> {
     trial?: number;
   };
 }
+
+// Phase 6: Longitudinal Intelligence & Recovery Tracking
+export type TimelineState =
+  | 'baseline'
+  | 'onset'
+  | 'active_change'
+  | 'recovering'
+  | 'recovered_or_stable'
+  | 'relapse_watch';
+
+export type AlertLevel = 'stable' | 'watch' | 'review_advised';
+
+export type ChangeClassificationType =
+  | 'stable'
+  | 'sudden_deviation'
+  | 'gradual_change'
+  | 'persistent_change'
+  | 'improvement'
+  | 'inconsistent';
+
+export interface NeurologicalChangeProfile {
+  domain: string;
+  what_changed: string;
+  current_value: number;
+  baseline_value: number;
+  unit: string;
+  magnitude_z: number;
+  trend: 'improving' | 'deteriorating' | 'stable' | 'inconsistent' | string;
+  duration_sessions: number;
+  data_quality: string;
+  context_tags: Record<string, any>;
+  evidence_reference: string[];
+  possible_clinical_relevance: string;
+}
+
+export interface ChangePoint {
+  has_change_point: boolean;
+  change_point_index?: number | null;
+  estimated_date?: string | null;
+  shift_magnitude_z?: number | null;
+  confidence_score: number;
+  disclaimer: string;
+}
+
+export interface ExpectedVsObservedRecovery {
+  session: number;
+  expected_recovery: number;
+  observed_recovery: number;
+  date?: string;
+}
+
+export interface RecoveryTracking {
+  overall_recovery_index: number;
+  domain_recovery_indices: Record<string, number>;
+  peak_deviation_z: number;
+  current_deviation_z: number;
+  plateau_detected: boolean;
+  plateau_note?: string | null;
+  expected_vs_observed: ExpectedVsObservedRecovery[];
+  estimated_sessions_to_recovery?: number | null;
+  uncertainty_pct: number;
+  experimental_disclaimer: string;
+}
+
+export interface TreatmentEvent {
+  id: string;
+  patient_id: string;
+  logged_by?: string | null;
+  event_type: 'medication_change' | 'therapy_session' | 'surgery' | 'lifestyle' | 'other' | string;
+  event_date: string;
+  title: string;
+  description?: string | null;
+  created_at: string;
+}
+
+export interface TreatmentEventCreate {
+  patient_id: string;
+  event_type: string;
+  event_date: string;
+  title: string;
+  description?: string;
+}
+
+export interface LongitudinalIntelligenceReport {
+  patient_id: string;
+  timeline_state: TimelineState;
+  timeline_explanation: string;
+  overall_alert: AlertLevel;
+  alert_explanation: string;
+  emergency_fast_triggered: boolean;
+  change_profiles: NeurologicalChangeProfile[];
+  change_points: ChangePoint[];
+  recovery: RecoveryTracking;
+  treatment_events: TreatmentEvent[];
+  treatment_correlations: string[];
+  evaluated_at: string;
+}

@@ -12,6 +12,9 @@ import type {
   MonitoringPlan,
   DailyCheckin,
   DailyCheckinStatus,
+  TreatmentEvent,
+  TreatmentEventCreate,
+  LongitudinalIntelligenceReport,
 } from '../types';
 import { storageService, networkService } from '../platform';
 import { offlineDb } from './db';
@@ -420,5 +423,46 @@ export const api = {
     });
     if (!res.ok) throw new Error('Failed to compute baseline');
     return res.json();
+  },
+
+  // Phase 6: Longitudinal Intelligence & Recovery Tracking
+  async getLongitudinalAnalysis(patientId: string): Promise<LongitudinalIntelligenceReport> {
+    const headers = await getAuthHeader();
+    const res = await fetch(`${API_BASE}/longitudinal/analysis/${patientId}`, { headers });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Failed to fetch longitudinal analysis' }));
+      throw new Error(err.detail || 'Failed to fetch longitudinal analysis');
+    }
+    return res.json();
+  },
+
+  async getTreatmentEvents(patientId: string): Promise<TreatmentEvent[]> {
+    const headers = await getAuthHeader();
+    const res = await fetch(`${API_BASE}/longitudinal/treatment-events/${patientId}`, { headers });
+    if (!res.ok) throw new Error('Failed to fetch treatment events');
+    return res.json();
+  },
+
+  async createTreatmentEvent(data: TreatmentEventCreate): Promise<TreatmentEvent> {
+    const headers = await getAuthHeader();
+    const res = await fetch(`${API_BASE}/longitudinal/treatment-events`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: 'Failed to create treatment event' }));
+      throw new Error(err.detail || 'Failed to create treatment event');
+    }
+    return res.json();
+  },
+
+  async deleteTreatmentEvent(eventId: string): Promise<void> {
+    const headers = await getAuthHeader();
+    const res = await fetch(`${API_BASE}/longitudinal/treatment-events/${eventId}`, {
+      method: 'DELETE',
+      headers,
+    });
+    if (!res.ok) throw new Error('Failed to delete treatment event');
   },
 };

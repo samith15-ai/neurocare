@@ -12,6 +12,15 @@ from app.schemas.invitation import InvitationCreate, InvitationOut, RegisterWith
 from app.schemas.consent import ConsentCreate, ConsentRevoke, ConsentOut
 from app.schemas.monitoring_plan import MonitoringPlanCreate, MonitoringPlanUpdate, MonitoringPlanOut
 from app.schemas.checkin import DailyCheckinCreate, DailyCheckinOut, DailyCheckinStatusOut, SyncBatchRequest, SyncBatchResponse
+from app.schemas.longitudinal import (
+    ChangeClassificationOut,
+    ChangePointOut,
+    NeurologicalChangeProfile,
+    RecoveryTrackingOut,
+    TreatmentEventCreate,
+    TreatmentEventOut,
+    LongitudinalIntelligenceReport,
+)
 
 __all__ = [
     "Token",
@@ -54,4 +63,11 @@ __all__ = [
     "DailyCheckinStatusOut",
     "SyncBatchRequest",
     "SyncBatchResponse",
+    "ChangeClassificationOut",
+    "ChangePointOut",
+    "NeurologicalChangeProfile",
+    "RecoveryTrackingOut",
+    "TreatmentEventCreate",
+    "TreatmentEventOut",
+    "LongitudinalIntelligenceReport",
 ]

@@ -11,6 +11,8 @@ from app.models.invitation import Invitation
 from app.models.consent import PatientConsent
 from app.models.monitoring_plan import MonitoringPlan
 from app.models.checkin import DailyCheckin
+from app.models.treatment_event import TreatmentEvent
+from app.models.patient_timeline import PatientTimelineState
 
 __all__ = [
     "Base",
@@ -25,5 +27,7 @@ __all__ = [
     "Invitation",
     "PatientConsent",
     "MonitoringPlan",
-    "DailyCheckin"
+    "DailyCheckin",
+    "TreatmentEvent",
+    "PatientTimelineState"
 ]

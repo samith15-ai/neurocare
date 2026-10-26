@@ -9,6 +9,7 @@ import { GaitAssessment } from '../assessments/GaitAssessment';
 import { BalanceAssessment } from '../assessments/BalanceAssessment';
 import { CognitiveAssessment } from '../assessments/CognitiveAssessment';
 import { LongitudinalChart } from '../monitoring/LongitudinalChart';
+import { LongitudinalTimelineView } from '../monitoring/LongitudinalTimelineView';
 import { ReportView } from '../reports/ReportView';
 import { AIAssistant } from '../ai/AIAssistant';
 import { DoctorEnrollmentModal } from '../enrollment/DoctorEnrollmentModal';
@@ -323,6 +324,9 @@ export const DoctorDashboard: React.FC = () => {
 
               {/* Longitudinal Monitoring Chart */}
               <LongitudinalChart points={trajectoryPoints} />
+
+              {/* Phase 6: Longitudinal Intelligence, Change Detection & Recovery Tracking */}
+              <LongitudinalTimelineView patientId={selectedPatient.id} isDoctor={true} />
 
               {/* Latest Report Section */}
               {activeReport && (

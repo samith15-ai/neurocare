@@ -10,6 +10,7 @@ import { GaitAssessment } from '../assessments/GaitAssessment';
 import { BalanceAssessment } from '../assessments/BalanceAssessment';
 import { CognitiveAssessment } from '../assessments/CognitiveAssessment';
 import { LongitudinalChart } from '../monitoring/LongitudinalChart';
+import { LongitudinalTimelineView } from '../monitoring/LongitudinalTimelineView';
 import { ReportView } from '../reports/ReportView';
 import { DailyCheckinModal } from '../monitoring/DailyCheckinModal';
 import { PrivacyConsentModal } from '../enrollment/PrivacyConsentModal';
@@ -324,6 +325,11 @@ export const PatientDashboard: React.FC = () => {
         </h3>
         <LongitudinalChart points={trajectoryPoints} />
       </div>
+
+      {/* Phase 6: Longitudinal Intelligence & Recovery Tracking */}
+      {patient && (
+        <LongitudinalTimelineView patientId={patient.id} isDoctor={false} />
+      )}
 
       {/* Latest Clinician-Approved Report Summary */}
       {latestReport && (

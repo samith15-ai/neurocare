@@ -12,6 +12,7 @@ from app.routers.audit_logs import router as audit_router
 from app.routers.enrollment import router as enrollment_router
 from app.routers.monitoring_plans import router as monitoring_plans_router
 from app.routers.checkins import router as checkins_router
+from app.routers.longitudinal import router as longitudinal_router
 
 __all__ = [
     "health_router",
@@ -27,5 +28,6 @@ __all__ = [
     "audit_router",
     "enrollment_router",
     "monitoring_plans_router",
-    "checkins_router"
+    "checkins_router",
+    "longitudinal_router"
 ]

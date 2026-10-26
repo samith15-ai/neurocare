@@ -17,7 +17,8 @@ from app.routers import (
     audit_router,
     enrollment_router,
     monitoring_plans_router,
-    checkins_router
+    checkins_router,
+    longitudinal_router
 )
 from app.models.user import User
 from app.models.patient import Patient
@@ -54,6 +55,19 @@ def auto_migrate_sqlite():
                 conn.execute(text("ALTER TABLE baselines ADD COLUMN is_frozen BOOLEAN DEFAULT 0"))
             if "status_message" not in col_names:
                 conn.execute(text("ALTER TABLE baselines ADD COLUMN status_message VARCHAR(100) DEFAULT 'Personal baseline is not yet established.'"))
+
+            # Check reports table
+            res_rep = conn.execute(text("PRAGMA table_info(reports)")).fetchall()
+            rep_cols = {row[1] for row in res_rep}
+            if "overall_status" not in rep_cols:
+                conn.execute(text("ALTER TABLE reports ADD COLUMN overall_status VARCHAR(30) DEFAULT 'No flag'"))
+            if "domain_scores_json" not in rep_cols:
+                conn.execute(text("ALTER TABLE reports ADD COLUMN domain_scores_json TEXT"))
+            if "doctor_feedback" not in rep_cols:
+                conn.execute(text("ALTER TABLE reports ADD COLUMN doctor_feedback VARCHAR(20)"))
+            if "doctor_notes" not in rep_cols:
+                conn.execute(text("ALTER TABLE reports ADD COLUMN doctor_notes TEXT"))
+
             conn.commit()
     except Exception as e:
         print(f"Warning during auto_migrate_sqlite: {e}")
@@ -90,6 +104,7 @@ app.include_router(audit_router, prefix=settings.API_PREFIX)
 app.include_router(enrollment_router, prefix=settings.API_PREFIX)
 app.include_router(monitoring_plans_router, prefix=settings.API_PREFIX)
 app.include_router(checkins_router, prefix=settings.API_PREFIX)
+app.include_router(longitudinal_router, prefix=settings.API_PREFIX)
 
 @app.on_event("startup")
 def seed_demo_data_if_empty():
