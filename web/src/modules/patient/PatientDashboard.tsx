@@ -3,6 +3,7 @@ import { Activity, Heart, CheckCircle2, ChevronRight, PhoneCall } from 'lucide-r
 import { useAuth } from '../../lib/authContext';
 import { api } from '../../lib/api';
 import { CaptureEngine } from '../capture/CaptureEngine';
+import { FingerTappingAssessment } from '../assessments/FingerTappingAssessment';
 import { LongitudinalChart } from '../monitoring/LongitudinalChart';
 import type { Patient, TrajectoryPoint, Feature, Report } from '../../types';
 
@@ -11,6 +12,7 @@ export const PatientDashboard: React.FC = () => {
   const [patient, setPatient] = useState<Patient | null>(null);
   const [trajectoryPoints, setTrajectoryPoints] = useState<TrajectoryPoint[]>([]);
   const [showAssessment, setShowAssessment] = useState(false);
+  const [assessmentMode, setAssessmentMode] = useState<'multimodal' | 'finger_tapping'>('finger_tapping');
   const [latestReport, setLatestReport] = useState<Report | null>(null);
   const [assessmentSuccess, setAssessmentSuccess] = useState(false);
 
@@ -120,19 +122,35 @@ export const PatientDashboard: React.FC = () => {
             <Activity className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-slate-100">Daily Contactless Check-In</h2>
-            <p className="text-xs text-slate-400">A quick 60-second guided camera and voice assessment.</p>
+            <h2 className="text-sm font-bold text-slate-100">Bilateral Finger-Tapping Check-In</h2>
+            <p className="text-xs text-slate-400">Standardized 12s test per hand measuring tap frequency & rhythm.</p>
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setShowAssessment(true)}
-          className="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-3.5 px-4 rounded-2xl shadow-lg shadow-sky-950 flex items-center justify-center gap-2 text-sm transition mt-1 active:scale-[0.98]"
-        >
-          <span>Start Assessment</span>
-          <ChevronRight className="w-4 h-4" />
-        </button>
+        <div className="grid grid-cols-2 gap-2 mt-1">
+          <button
+            type="button"
+            onClick={() => {
+              setAssessmentMode('finger_tapping');
+              setShowAssessment(true);
+            }}
+            className="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 px-3 rounded-2xl shadow-lg shadow-sky-950 flex items-center justify-center gap-1.5 text-xs transition active:scale-[0.98]"
+          >
+            <span>Finger Tapping</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setAssessmentMode('multimodal');
+              setShowAssessment(true);
+            }}
+            className="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold py-3 px-3 rounded-2xl flex items-center justify-center gap-1.5 text-xs transition active:scale-[0.98]"
+          >
+            <span>Full Multimodal</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
 
       {/* Longitudinal Progress Chart */}
@@ -176,11 +194,28 @@ export const PatientDashboard: React.FC = () => {
               </button>
             </div>
 
-            <CaptureEngine
-              assessmentType="multimodal_standard"
-              patientId={patient.id}
-              onComplete={handleAssessmentComplete}
-            />
+            {assessmentMode === 'finger_tapping' ? (
+              <FingerTappingAssessment
+                patientId={patient.id}
+                onAssessmentCompleted={async (assId) => {
+                  setShowAssessment(false);
+                  setAssessmentSuccess(true);
+                  try {
+                    const rep = await api.getReportForAssessment(assId);
+                    setLatestReport(rep);
+                    const longData = await api.getLongitudinal(patient.id);
+                    setTrajectoryPoints(longData.trajectory_points);
+                  } catch {}
+                }}
+                onCancel={() => setShowAssessment(false)}
+              />
+            ) : (
+              <CaptureEngine
+                assessmentType="multimodal_standard"
+                patientId={patient.id}
+                onComplete={handleAssessmentComplete}
+              />
+            )}
           </div>
         </div>
       )}
