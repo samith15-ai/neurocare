@@ -1,0 +1,54 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-10-26T00:00:00Z",
+  "principles": {
+    "quality_is_not_pathology": true,
+    "missing_is_not_abnormal": true,
+    "unavailable_beats_invented": true,
+    "traceability_required": true,
+    "diagnosis_prohibited": true
+  },
+  "approved_terminology": {
+    "observed_change": "Observed change",
+    "possible_clinical_relevance": "Possible clinical relevance",
+    "warrants_review": "May warrant clinical review",
+    "not_assessed": "Not assessed",
+    "insufficient_quality": "Insufficient recording quality"
+  },
+  "prohibited_terminology": [
+    "diagnosed with",
+    "has Parkinson's",
+    "has ALS",
+    "has stroke",
+    "disease probability",
+    "doctor missed symptom",
+    "confirmed pathology"
+  ],
+  "late_fusion_weights": {
+    "facial_expressivity_weight": 0.30,
+    "motor_kinematics_weight": 0.40,
+    "vocal_acoustics_weight": 0.30
+  },
+  "status_mapping": {
+    "nominal": {
+      "label": "Stable / Nominal",
+      "severity": "low",
+      "color": "emerald"
+    },
+    "mild_deviation": {
+      "label": "Observed mild variation from baseline",
+      "severity": "moderate",
+      "color": "amber"
+    },
+    "notable_deviation": {
+      "label": "Observed change - May warrant clinical review",
+      "severity": "high",
+      "color": "rose"
+    },
+    "unassessed": {
+      "label": "Not assessed / Insufficient recording quality",
+      "severity": "neutral",
+      "color": "slate"
+    }
+  }
+}

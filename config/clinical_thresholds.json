@@ -1,0 +1,66 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-10-26T00:00:00Z",
+  "meta": {
+    "system_name": "NeuroCare",
+    "description": "Versioned clinical thresholds and quality constraints for contactless multimodal neurological monitoring decision support."
+  },
+  "quality_gate_thresholds": {
+    "lighting": {
+      "min_luma_percentile": 20.0,
+      "optimal_luma_percentile": 65.0,
+      "max_glare_ratio": 0.15,
+      "rejection_code": "INSUFFICIENT_ILLUMINATION",
+      "instruction": "Please reposition towards better lighting or avoid direct glare behind you."
+    },
+    "facial_visibility": {
+      "min_face_detection_confidence": 0.70,
+      "max_head_rotation_yaw_deg": 30.0,
+      "max_head_rotation_pitch_deg": 25.0,
+      "rejection_code": "FACE_OCCLUDED_OR_ANGLED",
+      "instruction": "Please ensure your entire face is directly facing the camera at eye level."
+    },
+    "postural_framing": {
+      "min_shoulder_visibility_confidence": 0.65,
+      "min_hand_landmarks_detected": 21,
+      "rejection_code": "IMPROPER_FRAMING",
+      "instruction": "Position yourself so your upper torso, shoulders, and hands are visible in the frame."
+    },
+    "audio_snr": {
+      "min_snr_db": 14.0,
+      "max_clipping_fraction": 0.02,
+      "min_voicing_probability": 0.60,
+      "rejection_code": "POOR_AUDIO_QUALITY",
+      "instruction": "Move to a quieter room and speak clearly into the microphone."
+    }
+  },
+  "emergency_fast_protocol": {
+    "enabled": true,
+    "triggers": {
+      "facial_asymmetry_drop_ratio": 0.45,
+      "unilateral_arm_pronator_drift_deg": 18.0,
+      "acute_speech_dysarthria_index": 0.80
+    },
+    "banner_text": "CRITICAL HEALTH ALERT: Possible acute neurological indicators observed. Seek emergency medical attention immediately (e.g., dial 911 / emergency services). Do not wait for further assessments.",
+    "action_url": "tel:911"
+  },
+  "multimodal_feature_thresholds": {
+    "facial_mobility": {
+      "nasolabial_asymmetry_nominal_mm": 2.5,
+      "blink_rate_per_minute_nominal": [12.0, 28.0],
+      "hypomimia_variability_threshold": 0.18
+    },
+    "motor_kinematics": {
+      "finger_tap_amplitude_decay_nominal": 0.15,
+      "resting_tremor_frequency_hz_nominal": [3.5, 7.0],
+      "postural_tremor_frequency_hz_nominal": [6.0, 12.0],
+      "pronation_supination_frequency_nominal_hz": [1.8, 3.5]
+    },
+    "acoustic_vocal": {
+      "jitter_percent_nominal_max": 1.04,
+      "shimmer_percent_nominal_max": 3.81,
+      "harmonics_to_noise_ratio_min_db": 20.0,
+      "diadochokinetic_rate_syllables_per_sec": [4.5, 7.5]
+    }
+  }
+}

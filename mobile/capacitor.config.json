@@ -1,0 +1,20 @@
+{
+  "appId": "com.neurocare.app",
+  "appName": "NeuroCare",
+  "webDir": "../web/dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1500,
+      "backgroundColor": "#0F172A",
+      "showSpinner": false
+    },
+    "Camera": {
+      "permissions": ["camera"]
+    }
+  }
+}
