@@ -3,6 +3,8 @@ import { Users, UserPlus, Activity, Search, ArrowRight } from 'lucide-react';
 import { api } from '../../lib/api';
 import { CaptureEngine } from '../capture/CaptureEngine';
 import { FingerTappingAssessment } from '../assessments/FingerTappingAssessment';
+import { SpeechAssessment } from '../assessments/SpeechAssessment';
+import { FacialMovementAssessment } from '../assessments/FacialMovementAssessment';
 import { LongitudinalChart } from '../monitoring/LongitudinalChart';
 import { ReportView } from '../reports/ReportView';
 import { AIAssistant } from '../ai/AIAssistant';
@@ -398,9 +400,35 @@ export const DoctorDashboard: React.FC = () => {
               ))}
             </div>
 
-            {/* Live Capture Engine / Dedicated Protocol */}
+            {/* Specialized Clinical Assessment Suite */}
             {assessmentType === 'motor' ? (
               <FingerTappingAssessment
+                patientId={selectedPatient.id}
+                onAssessmentCompleted={async (assId) => {
+                  setShowAssessmentModal(false);
+                  await selectPatient(selectedPatient);
+                  try {
+                    const rep = await api.getReportForAssessment(assId);
+                    setActiveReport(rep);
+                  } catch {}
+                }}
+                onCancel={() => setShowAssessmentModal(false)}
+              />
+            ) : assessmentType === 'vocal' ? (
+              <SpeechAssessment
+                patientId={selectedPatient.id}
+                onAssessmentCompleted={async (assId) => {
+                  setShowAssessmentModal(false);
+                  await selectPatient(selectedPatient);
+                  try {
+                    const rep = await api.getReportForAssessment(assId);
+                    setActiveReport(rep);
+                  } catch {}
+                }}
+                onCancel={() => setShowAssessmentModal(false)}
+              />
+            ) : assessmentType === 'facial' ? (
+              <FacialMovementAssessment
                 patientId={selectedPatient.id}
                 onAssessmentCompleted={async (assId) => {
                   setShowAssessmentModal(false);

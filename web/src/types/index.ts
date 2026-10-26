@@ -113,3 +113,29 @@ export interface TrajectoryPoint {
   deviation_sigmas?: number;
   is_simulated: boolean;
 }
+
+// Standard Assessment Output Schema (Phase 2 Requirement)
+export interface StandardAssessmentOutput<T = Record<string, number | string>> {
+  assessment_type: 'speech' | 'facial' | 'motor' | 'multimodal_standard';
+  task_name: string;
+  features: T;
+  quality: {
+    status: 'valid' | 'limited' | 'insufficient';
+    reasons: string[];
+    metrics: Record<string, number | boolean>;
+  };
+  evidence: {
+    timestamps?: number[];
+    sample_count: number;
+    signal_summary?: string;
+    raw_payload_ref?: string;
+  };
+  unavailable_features: string[];
+  timestamp: string;
+  is_simulated: boolean;
+  metadata?: {
+    device?: string;
+    language?: 'en' | 'ta' | 'hi';
+    trial?: number;
+  };
+}

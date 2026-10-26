@@ -4,6 +4,8 @@ import { useAuth } from '../../lib/authContext';
 import { api } from '../../lib/api';
 import { CaptureEngine } from '../capture/CaptureEngine';
 import { FingerTappingAssessment } from '../assessments/FingerTappingAssessment';
+import { SpeechAssessment } from '../assessments/SpeechAssessment';
+import { FacialMovementAssessment } from '../assessments/FacialMovementAssessment';
 import { LongitudinalChart } from '../monitoring/LongitudinalChart';
 import type { Patient, TrajectoryPoint, Feature, Report } from '../../types';
 
@@ -12,7 +14,7 @@ export const PatientDashboard: React.FC = () => {
   const [patient, setPatient] = useState<Patient | null>(null);
   const [trajectoryPoints, setTrajectoryPoints] = useState<TrajectoryPoint[]>([]);
   const [showAssessment, setShowAssessment] = useState(false);
-  const [assessmentMode, setAssessmentMode] = useState<'multimodal' | 'finger_tapping'>('finger_tapping');
+  const [assessmentMode, setAssessmentMode] = useState<'finger_tapping' | 'speech' | 'facial' | 'multimodal'>('finger_tapping');
   const [latestReport, setLatestReport] = useState<Report | null>(null);
   const [assessmentSuccess, setAssessmentSuccess] = useState(false);
 
@@ -134,9 +136,31 @@ export const PatientDashboard: React.FC = () => {
               setAssessmentMode('finger_tapping');
               setShowAssessment(true);
             }}
-            className="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 px-3 rounded-2xl shadow-lg shadow-sky-950 flex items-center justify-center gap-1.5 text-xs transition active:scale-[0.98]"
+            className="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 px-2 rounded-2xl shadow-lg shadow-sky-950 flex items-center justify-center gap-1 text-xs transition active:scale-[0.98]"
           >
             <span>Finger Tapping</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setAssessmentMode('speech');
+              setShowAssessment(true);
+            }}
+            className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-2 rounded-2xl shadow-lg shadow-indigo-950 flex items-center justify-center gap-1 text-xs transition active:scale-[0.98]"
+          >
+            <span>Voice & Speech</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setAssessmentMode('facial');
+              setShowAssessment(true);
+            }}
+            className="w-full bg-teal-600 hover:bg-teal-500 text-white font-bold py-3 px-2 rounded-2xl shadow-lg shadow-teal-950 flex items-center justify-center gap-1 text-xs transition active:scale-[0.98]"
+          >
+            <span>Facial Motion</span>
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
           <button
@@ -145,9 +169,9 @@ export const PatientDashboard: React.FC = () => {
               setAssessmentMode('multimodal');
               setShowAssessment(true);
             }}
-            className="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold py-3 px-3 rounded-2xl flex items-center justify-center gap-1.5 text-xs transition active:scale-[0.98]"
+            className="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold py-3 px-2 rounded-2xl flex items-center justify-center gap-1 text-xs transition active:scale-[0.98]"
           >
-            <span>Full Multimodal</span>
+            <span>Standard Multi</span>
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -196,6 +220,36 @@ export const PatientDashboard: React.FC = () => {
 
             {assessmentMode === 'finger_tapping' ? (
               <FingerTappingAssessment
+                patientId={patient.id}
+                onAssessmentCompleted={async (assId) => {
+                  setShowAssessment(false);
+                  setAssessmentSuccess(true);
+                  try {
+                    const rep = await api.getReportForAssessment(assId);
+                    setLatestReport(rep);
+                    const longData = await api.getLongitudinal(patient.id);
+                    setTrajectoryPoints(longData.trajectory_points);
+                  } catch {}
+                }}
+                onCancel={() => setShowAssessment(false)}
+              />
+            ) : assessmentMode === 'speech' ? (
+              <SpeechAssessment
+                patientId={patient.id}
+                onAssessmentCompleted={async (assId) => {
+                  setShowAssessment(false);
+                  setAssessmentSuccess(true);
+                  try {
+                    const rep = await api.getReportForAssessment(assId);
+                    setLatestReport(rep);
+                    const longData = await api.getLongitudinal(patient.id);
+                    setTrajectoryPoints(longData.trajectory_points);
+                  } catch {}
+                }}
+                onCancel={() => setShowAssessment(false)}
+              />
+            ) : assessmentMode === 'facial' ? (
+              <FacialMovementAssessment
                 patientId={patient.id}
                 onAssessmentCompleted={async (assId) => {
                   setShowAssessment(false);
