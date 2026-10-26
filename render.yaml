@@ -9,15 +9,15 @@ services:
     autoDeploy: true
     envVars:
       - key: PYTHON_VERSION
-        value: 3.12.0
+        value: "3.12.0"
       - key: ENVIRONMENT
-        value: production
+        value: "production"
       - key: DEBUG
-        value: false
+        value: "false"
       - key: USE_SQLITE
-        value: false
+        value: "false"
       - key: DATABASE_URL
-        sync: false # Set to your Supabase PostgreSQL connection URI in Render Dashboard
+        sync: false
       - key: APP_SECRET_KEY
         generateValue: true
       - key: CORS_ORIGINS

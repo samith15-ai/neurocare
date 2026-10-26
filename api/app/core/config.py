@@ -1,5 +1,5 @@
 import os
-from typing import List, Union
+from typing import List, Union, Any
 import json
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -13,6 +13,13 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     DEBUG: bool = True
     
+    @field_validator("DEBUG", mode="before")
+    @classmethod
+    def assemble_debug(cls, v: Any) -> bool:
+        if isinstance(v, str):
+            return v.strip().lower() in ("true", "1", "yes", "y", "t")
+        return bool(v)
+
     # Security
     APP_SECRET_KEY: str = "neurocare_dev_insecure_secret_key_change_in_production_min32chars!"
     ALGORITHM: str = "HS256"
@@ -45,14 +52,45 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "sqlite:///./neurocare_dev.db"
     USE_SQLITE: bool = True
+
+    @field_validator("USE_SQLITE", mode="before")
+    @classmethod
+    def assemble_use_sqlite(cls, v: Any) -> bool:
+        if isinstance(v, str):
+            return v.strip().lower() in ("true", "1", "yes", "y", "t")
+        return bool(v)
     
     # Config Paths
-    CLINICAL_CONFIG_PATH: str = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "../../../config/clinical_thresholds.json")
-    )
-    SCORING_RULES_PATH: str = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "../../../config/scoring_rules.json")
-    )
+    CLINICAL_CONFIG_PATH: str = ""
+    SCORING_RULES_PATH: str = ""
+
+    @field_validator("CLINICAL_CONFIG_PATH", mode="before")
+    @classmethod
+    def assemble_clinical_config(cls, v: Any) -> str:
+        if v and os.path.exists(str(v)):
+            return str(v)
+        candidates = [
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "../../config/clinical_thresholds.json")),
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../config/clinical_thresholds.json")),
+        ]
+        for p in candidates:
+            if os.path.exists(p):
+                return p
+        return candidates[0]
+
+    @field_validator("SCORING_RULES_PATH", mode="before")
+    @classmethod
+    def assemble_scoring_rules(cls, v: Any) -> str:
+        if v and os.path.exists(str(v)):
+            return str(v)
+        candidates = [
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "../../config/scoring_rules.json")),
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../config/scoring_rules.json")),
+        ]
+        for p in candidates:
+            if os.path.exists(p):
+                return p
+        return candidates[0]
     
     # Emergency protocol
     EMERGENCY_HELPLINE: str = "911"
